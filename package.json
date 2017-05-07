@@ -1,0 +1,28 @@
+{
+  "name": "renderium-playground",
+  "version": "0.1.0",
+  "description": "Renderium playground",
+  "keywords": [
+    "canvas",
+    "webgl",
+    "repl"
+  ],
+  "license": "MIT",
+  "homepage": "https://renderium.github.io/playground",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/renderium/playground"
+  },
+  "bugs": {
+    "url": "https://github.com/renderium/playground/issues",
+    "email": "broadsw.rd@yandex.ru"
+  },
+  "author": {
+    "name": "Vladimir Bykov",
+    "email": "broadsw.rd@yandex.ru",
+    "url": "https://github.com/broadsw0rd"
+  },
+  "scripts": {
+    "check": "snazzy src/*.js"
+  }
+}
