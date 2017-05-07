@@ -25,13 +25,17 @@ html, body {
 }
 
 .editor {
-  flex-grow: 1;
+  width: 50%;
   height: 100%;
   box-sizing: border-box;
   border-right: 5px solid #e2e2e2;
 }
 
 .preview {
-  flex-grow: 1;
+  width: 50%;
+  height: 100%;
+}
+
+.CodeMirror {
   height: 100%;
 }
