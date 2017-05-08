@@ -10,11 +10,18 @@
       this.editor = CodeMirror(this.refs.editor, settings)
 
       this.observe('code', this.setCode.bind(this))
+      this.editor.on('change', this.triggerChange.bind(this))
     },
 
     methods: {
       setCode (code) {
         this.editor.setValue(code)
+      },
+
+      triggerChange () {
+        this.fire('change', {
+          code: this.editor.getValue()
+        })
       }
     }
   }

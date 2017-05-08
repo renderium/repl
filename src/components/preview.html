@@ -1,4 +1,31 @@
-<div class="preview"></div>
+<div class="preview">
+  <div class="renderer" ref:preview></div>
+</div>
+
+<script>
+  import Renderium from 'renderium'
+
+  export default {
+    oncreate () {
+      this.renderer = new Renderium({
+        el: this.refs.preview
+      })
+      Renderium.spawn(this.renderer)
+
+      this.observe('layer', this.setLayer.bind(this))
+    },
+
+    methods: {
+      setLayer (layer) {
+        this.renderer.removeLayer(this.layer)
+        this.layer = layer
+        if (this.layer) {
+          this.renderer.addLayer(this.layer)
+        }
+      }
+    }
+  }
+</script>
 
 <style>
   .preview {

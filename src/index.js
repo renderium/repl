@@ -1,10 +1,12 @@
 import App from './components/app.html'
+import Playground from './playground.js'
+import code from './code.js'
 
-window.app = new App({
-  target: document.body,
-  data: {
-    code: `function foo () {
-  console.log('foo')
-}`
-  }
+var view = new App({
+  target: document.body
+})
+
+window.playground = new Playground({
+  view,
+  code
 })

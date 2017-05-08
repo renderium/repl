@@ -1,8 +1,8 @@
 <div class="app">
   <Header />
   <section class="main">
-    <Editor code="{{code}}"/>
-    <Preview />
+    <Editor code="{{code}}" on:change="triggerChangeCode(event.code)"/>
+    <Preview layer="{{layer}}"/>
   </section>
 </div>
 
@@ -12,6 +12,18 @@
   import Preview from './preview.html'
 
   export default {
+    data() {
+      return {
+        code: ''
+      }
+    },
+
+    methods: {
+      triggerChangeCode(code) {
+        this.fire('change:code', code)
+      }
+    },
+
     components: {
       Header,
       Editor,
