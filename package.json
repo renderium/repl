@@ -39,6 +39,7 @@
   "dependencies": {
     "codemirror": "^5.25.2",
     "dynamica": "1.0.1",
+    "perf-monitor": "^0.4.0",
     "renderium": "0.2.0",
     "vectory": "1.1.0"
   }

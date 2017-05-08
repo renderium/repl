@@ -1,14 +1,21 @@
 import Renderium from 'renderium'
 import Vector from 'vectory'
 import Animation from 'dynamica'
+import * as perfMonitor from 'perf-monitor'
 
 const raf = window.requestAnimationFrame
 
-function digest (time) {
+perfMonitor.startFPSMonitor()
+perfMonitor.startMemMonitor()
+perfMonitor.initProfiler('digest')
+
+raf(function digest (time) {
+  perfMonitor.startProfile('digest')
   Animation.animate(time)
   Renderium.digest(time)
+  perfMonitor.endProfile('digest')
   raf(digest)
-}
+})
 
 class Playground {
   constructor ({ view, code }) {
@@ -16,8 +23,6 @@ class Playground {
       Vector
     })
     this.view = view
-
-    raf(digest)
 
     this.setupView()
     this.updateView({
