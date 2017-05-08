@@ -1,0 +1,33 @@
+<div class="app">
+  <Header />
+  <section class="main">
+    <Editor code="{{code}}"/>
+    <Preview />
+  </section>
+</div>
+
+<script>
+  import Header from './header.html'
+  import Editor from './editor.html'
+  import Preview from './preview.html'
+
+  export default {
+    components: {
+      Header,
+      Editor,
+      Preview
+    }
+  }
+</script>
+
+<style>
+  .app {
+    height: calc(100% - 60px);
+  }
+
+  .main {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+  }
+</style>

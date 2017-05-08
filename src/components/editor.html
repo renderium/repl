@@ -1,0 +1,35 @@
+<div class="editor" ref:editor></div>
+
+<script>
+  import CodeMirror from 'codemirror'
+  import 'codemirror/mode/javascript/javascript.js'
+  import settings from '../editor-settings.js'
+
+  export default {
+    oncreate () {
+      this.editor = CodeMirror(this.refs.editor, settings)
+
+      this.observe('code', this.setCode.bind(this))
+    },
+
+    methods: {
+      setCode (code) {
+        this.editor.setValue(code)
+      }
+    }
+  }
+
+</script>
+
+<style>
+  .editor {
+    width: 50%;
+    height: 100%;
+    box-sizing: border-box;
+    border-right: 5px solid #e2e2e2;
+  }
+
+  .CodeMirror {
+    height: 100%;
+  }
+</style>

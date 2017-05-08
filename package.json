@@ -23,6 +23,24 @@
     "url": "https://github.com/broadsw0rd"
   },
   "scripts": {
-    "check": "snazzy src/*.js"
+    "check": "standard src/**/*.js | snazzy",
+    "build": "rollup -c",
+    "min": "uglifyjs -c -m dist/app.js > dist/app.min.js"
+  },
+  "devDependencies": {
+    "rollup": "0.41.6",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-commonjs": "8.0.2",
+    "rollup-plugin-node-resolve": "3.0.0",
+    "rollup-plugin-svelte": "1.8.1",
+    "snazzy": "^7.0.0",
+    "standard": "^10.0.2",
+    "uglifyjs": "2.4.10"
+  },
+  "dependencies": {
+    "codemirror": "^5.25.2",
+    "dynamica": "1.0.1",
+    "renderium": "0.2.0",
+    "vectory": "1.1.0"
   }
 }
