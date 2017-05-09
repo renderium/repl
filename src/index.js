@@ -1,3 +1,4 @@
+import * as perfMonitor from 'perf-monitor'
 import App from './components/app.html'
 import Playground from './playground.js'
 import code from './code.js'
@@ -10,3 +11,7 @@ window.playground = new Playground({
   view,
   code
 })
+
+perfMonitor.startFPSMonitor()
+perfMonitor.startMemMonitor()
+perfMonitor.initProfiler('digest')

@@ -5,10 +5,6 @@ import * as perfMonitor from 'perf-monitor'
 
 const raf = window.requestAnimationFrame
 
-perfMonitor.startFPSMonitor()
-perfMonitor.startMemMonitor()
-perfMonitor.initProfiler('digest')
-
 raf(function digest (time) {
   perfMonitor.startProfile('digest')
   Animation.animate(time)
