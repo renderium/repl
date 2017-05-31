@@ -1,4 +1,4 @@
-import * as perfMonitor from 'perf-monitor'
+import { perfMonitor } from 'lib'
 import App from './components/app.html'
 import Playground from './playground.js'
 import code from './code.js'

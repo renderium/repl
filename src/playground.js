@@ -1,7 +1,4 @@
-import Renderium from 'renderium'
-import Vector from 'vectory'
-import Animation from 'dynamica'
-import * as perfMonitor from 'perf-monitor'
+import { Renderium, Vector, Animation, perfMonitor } from 'lib'
 
 const raf = window.requestAnimationFrame
 

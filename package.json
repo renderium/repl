@@ -24,7 +24,9 @@
   },
   "scripts": {
     "check": "standard src/**/*.js | snazzy",
-    "build": "rollup -c",
+    "build": "npm run build:lib && npm run build:app",
+    "build:app": "rollup -c rollup.app.js",
+    "build:lib": "rollup -c rollup.lib.js",
     "min": "uglifyjs -c -m dist/app.js > dist/app.min.js"
   },
   "devDependencies": {

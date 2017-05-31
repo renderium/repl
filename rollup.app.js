@@ -6,7 +6,13 @@ export default {
   moduleName: 'Playground',
   entry: 'src/index.js',
   dest: 'dist/app.js',
-  format: 'umd',
+  format: 'iife',
+  external: [
+  	'lib'
+  ],
+  'globals': {
+    'lib': 'Lib'
+  },
   plugins: [
     svelte(),
     nodeResolve(),
