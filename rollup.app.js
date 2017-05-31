@@ -8,7 +8,7 @@ export default {
   dest: 'dist/app.js',
   format: 'iife',
   external: [
-  	'lib'
+    'lib'
   ],
   'globals': {
     'lib': 'Lib'
