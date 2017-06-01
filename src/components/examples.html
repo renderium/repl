@@ -1,0 +1,28 @@
+<select class="select" on:change="triggerChange(event)">
+  {{#each examples as example}}
+    {{#if example === active}}
+      <option value="{{example}}" selected>{{example}}</option>
+    {{else}}
+      <option value="{{example}}">{{example}}</option>
+    {{/if}}
+  {{/each}}
+</select>
+
+
+<script>
+  export default {
+    methods: {
+      triggerChange (e) {
+        this.fire('change', {
+          example: e.target.value
+        })
+      }
+    }
+  }
+</script>
+
+<style>
+  .select {
+    width: 200px;
+  }
+</style>

@@ -1,5 +1,7 @@
 <div class="app">
-  <Header />
+  <Header>
+    <Examples examples="{{examples}}" active="{{activeExample}}" on:change="triggerChangeExample(event.example)">
+  </Header>
   <section class="main">
     <Editor code="{{code}}" on:change="triggerChangeCode(event.code)"/>
     <Preview layer="{{layer}}"/>
@@ -10,24 +12,32 @@
   import Header from './header.html'
   import Editor from './editor.html'
   import Preview from './preview.html'
+  import Examples from './examples.html'
 
   export default {
-    data() {
+    data () {
       return {
-        code: ''
+        code: '',
+        examples: [],
+        activeExample: ''
       }
     },
 
     methods: {
-      triggerChangeCode(code) {
+      triggerChangeCode (code) {
         this.fire('change:code', code)
+      },
+
+      triggerChangeExample (example) {
+        this.fire('change:example', example)
       }
     },
 
     components: {
       Header,
       Editor,
-      Preview
+      Preview,
+      Examples
     }
   }
 </script>

@@ -11,34 +11,65 @@ raf(function digest (time) {
 })
 
 class Playground {
-  constructor ({ view, code }) {
+  constructor ({ view, api }) {
     this.layer = new Renderium.CanvasLayer({
       Vector
     })
+    this.examples = {}
+
     this.view = view
+    this.api = api
 
     this.setupView()
     this.updateView({
-      code: code,
       layer: this.layer
     })
-    this.setCode(code)
+    this.loadExamples()
   }
 
   setupView () {
-    this.view.on('change:code', this.setCode.bind(this))
+    this.view.on('change:code', this.execCode.bind(this))
+    this.view.on('change:example', this.setExample.bind(this))
   }
 
   updateView (state) {
     this.view.set(state)
   }
 
+  loadExamples () {
+    return this.api.getExamples()
+      .then(result => Promise.all(result.map(example => this.loadExample(example.name))))
+      .then(() => this.setExample(Object.keys(this.examples)[0]))
+  }
+
+  loadExample (name) {
+    return this.api.getExample(name)
+      .then(code => this.addExample(name, code))
+  }
+
+  addExample (name, code) {
+    this.examples[name] = code
+    this.updateView({
+      examples: Object.keys(this.examples)
+    })
+  }
+
+  setExample (name) {
+    this.updateView({
+      activeExample: name
+    })
+    this.setCode(this.examples[name])
+  }
+
   setCode (code) {
-    this.code = code
+    this.updateView({
+      code: code
+    })
     this.execCode(code)
   }
 
   execCode (code) {
+    this.code = code
     this.layer.clearComponents()
     try {
       var func = new Function('Renderium', 'Animation', 'Vector', 'layer', code) // eslint-disable-line

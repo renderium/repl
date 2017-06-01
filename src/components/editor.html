@@ -2,7 +2,12 @@
 
 <script>
   import { CodeMirror } from 'lib'
-  import settings from '../editor-settings.js'
+
+  const settings = {
+    mode: 'javascript',
+    tabSize: 2,
+    lineNumbers: true
+  }
 
   export default {
     oncreate () {
