@@ -1,4 +1,5 @@
 <select class="select" on:change="triggerChange(event)">
+  <option disabled>Examples</option>
   {{#each examples as example}}
     {{#if example === active}}
       <option value="{{example}}" selected>{{example}}</option>

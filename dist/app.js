@@ -484,14 +484,21 @@ var template$3 = (function () {
 
 function add_css$4 () {
 	var style = createElement( 'style' );
-	style.id = "svelte-2789484291-style";
-	style.textContent = "\r\n  [svelte-2789484291].select, [svelte-2789484291] .select {\r\n    width: 200px;\r\n  }\r\n";
+	style.id = "svelte-1183016256-style";
+	style.textContent = "\r\n  [svelte-1183016256].select, [svelte-1183016256] .select {\r\n    width: 200px;\r\n  }\r\n";
 	appendNode( style, document.head );
 }
 
 function create_main_fragment$4 ( state, component ) {
 	var select = createElement( 'select' );
-	setAttribute( select, 'svelte-2789484291', '' );
+	setAttribute( select, 'svelte-1183016256', '' );
+	var option = createElement( 'option' );
+	appendNode( option, select );
+	option.disabled = true;
+	appendNode( createText( "Examples" ), option );
+
+	option.__value = option.textContent;
+
 	var each_block_value = state.examples;
 
 	var each_block_iterations = [];
@@ -515,6 +522,8 @@ function create_main_fragment$4 ( state, component ) {
 		},
 
 		update: function ( changed, state ) {
+			option.__value = option.textContent;
+
 			var each_block_value = state.examples;
 
 			if ( 'examples' in changed || 'active' in changed ) {
@@ -665,7 +674,7 @@ function Examples ( options ) {
 	this._yield = options._yield;
 
 	this._torndown = false;
-	if ( !document.getElementById( "svelte-2789484291-style" ) ) add_css$4();
+	if ( !document.getElementById( "svelte-1183016256-style" ) ) add_css$4();
 
 	this._fragment = create_main_fragment$4( this._state, this );
 	if ( options.target ) this._fragment.mount( options.target, null );
@@ -906,11 +915,13 @@ class Playground {
     this.updateView({
       layer: this.layer
     });
+    this.loadCode();
     this.loadExamples();
   }
 
   setupView () {
     this.view.on('change:code', this.execCode.bind(this));
+    this.view.on('change:code', this.saveCode.bind(this));
     this.view.on('change:example', this.setExample.bind(this));
   }
 
@@ -918,10 +929,18 @@ class Playground {
     this.view.set(state);
   }
 
+  loadCode () {
+    this.api.getCode()
+      .then((code) => this.setCode(code));
+  }
+
+  saveCode (code) {
+    this.api.saveCode(code);
+  }
+
   loadExamples () {
     return this.api.getExamples()
       .then(result => Promise.all(result.map(example => this.loadExample(example.name))))
-      .then(() => this.setExample(Object.keys(this.examples)[0]))
   }
 
   loadExample (name) {
@@ -963,17 +982,30 @@ class Playground {
 }
 
 /*
-global fetch, atob
+global localStorage, fetch, atob
 */
 
 const API_URL = 'https://api.github.com/';
 const EXAMPLES_URL = 'repos/renderium/examples/contents/';
+const STORAGE_KEY = 'renderium-playground';
 
 function isExample (example) {
   return example.type === 'dir' && example.name !== 'boilerplate'
 }
 
 class Api {
+  saveCode (code) {
+    return new Promise((resolve, reject) => {
+      resolve(localStorage.setItem(`${STORAGE_KEY}-code`, code));
+    })
+  }
+
+  getCode () {
+    return new Promise((resolve, reject) => {
+      resolve(localStorage.getItem(`${STORAGE_KEY}-code`) || '');
+    })
+  }
+
   getExamples () {
     return fetch(`${API_URL}${EXAMPLES_URL}`)
       .then(response => response.json())

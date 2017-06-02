@@ -24,11 +24,13 @@ class Playground {
     this.updateView({
       layer: this.layer
     })
+    this.loadCode()
     this.loadExamples()
   }
 
   setupView () {
     this.view.on('change:code', this.execCode.bind(this))
+    this.view.on('change:code', this.saveCode.bind(this))
     this.view.on('change:example', this.setExample.bind(this))
   }
 
@@ -36,10 +38,18 @@ class Playground {
     this.view.set(state)
   }
 
+  loadCode () {
+    this.api.getCode()
+      .then((code) => this.setCode(code))
+  }
+
+  saveCode (code) {
+    this.api.saveCode(code)
+  }
+
   loadExamples () {
     return this.api.getExamples()
       .then(result => Promise.all(result.map(example => this.loadExample(example.name))))
-      .then(() => this.setExample(Object.keys(this.examples)[0]))
   }
 
   loadExample (name) {
