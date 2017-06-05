@@ -1,20 +1,20 @@
 {
-  "name": "renderium-playground",
+  "name": "renderium-repl",
   "version": "0.1.0",
-  "description": "Renderium playground",
+  "description": "Renderium REPL",
   "keywords": [
     "canvas",
     "webgl",
     "repl"
   ],
   "license": "MIT",
-  "homepage": "https://renderium.github.io/playground",
+  "homepage": "https://renderium.github.io/repl",
   "repository": {
     "type": "git",
-    "url": "https://github.com/renderium/playground"
+    "url": "https://github.com/renderium/repl"
   },
   "bugs": {
-    "url": "https://github.com/renderium/playground/issues",
+    "url": "https://github.com/renderium/repl/issues",
     "email": "broadsw.rd@yandex.ru"
   },
   "author": {

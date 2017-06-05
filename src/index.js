@@ -1,6 +1,6 @@
 import { perfMonitor } from 'lib'
 import App from './components/app.html'
-import Playground from './playground.js'
+import Repl from './repl.js'
 import Api from './api.js'
 
 var view = new App({
@@ -9,7 +9,7 @@ var view = new App({
 
 var api = new Api()
 
-window.playground = new Playground({
+window.repl = new Repl({
   view,
   api
 })

@@ -10,7 +10,7 @@ raf(function digest (time) {
   raf(digest)
 })
 
-class Playground {
+class Repl {
   constructor ({ view, api }) {
     this.layer = new Renderium.CanvasLayer({
       Vector
@@ -90,4 +90,4 @@ class Playground {
   }
 }
 
-export default Playground
+export default Repl
