@@ -47,11 +47,11 @@ function createComment() {
 	return document.createComment('');
 }
 
-function addEventListener(node, event, handler) {
+function addListener(node, event, handler) {
 	node.addEventListener(event, handler, false);
 }
 
-function removeEventListener(node, event, handler) {
+function removeListener(node, event, handler) {
 	node.removeEventListener(event, handler, false);
 }
 
@@ -165,28 +165,37 @@ function add_css$1 () {
 }
 
 function create_main_fragment$1 ( state, component ) {
-	var header = createElement( 'header' );
-	setAttribute( header, 'svelte-3590224031', '' );
-	header.className = "container";
-	var h1 = createElement( 'h1' );
-	appendNode( h1, header );
-	h1.className = "text";
-	appendNode( createText( "Renderium REPL" ), h1 );
-	appendNode( createText( "\r\n  " ), header );
-	if ( component._yield ) component._yield.mount( header, null );
+	var header, h1, text, text_1;
 
 	return {
+		create: function () {
+			header = createElement( 'header' );
+			h1 = createElement( 'h1' );
+			text = createText( "Renderium REPL" );
+			text_1 = createText( "\r\n  " );
+			this.hydrate();
+		},
+
+		hydrate: function ( nodes ) {
+			setAttribute( header, 'svelte-3590224031', '' );
+			header.className = "container";
+			h1.className = "text";
+		},
+
 		mount: function ( target, anchor ) {
 			insertNode( header, target, anchor );
+			appendNode( h1, header );
+			appendNode( text, h1 );
+			appendNode( text_1, header );
+			if ( component._yield ) component._yield.mount( header, null );
 		},
 
 		unmount: function () {
 			detachNode( header );
+			if ( component._yield ) component._yield.unmount();
 		},
 
-		destroy: function () {
-			if ( component._yield ) component._yield.unmount();
-		}
+		destroy: noop
 	};
 }
 
@@ -208,7 +217,11 @@ function Header ( options ) {
 	if ( !document.getElementById( "svelte-3590224031-style" ) ) add_css$1();
 
 	this._fragment = create_main_fragment$1( this._state, this );
-	if ( options.target ) this._fragment.mount( options.target, null );
+
+	if ( options.target ) {
+		this._fragment.create();
+		this._fragment.mount( options.target, null );
+	}
 }
 
 assign( Header.prototype, proto );
@@ -269,23 +282,30 @@ function add_css$2 () {
 }
 
 function create_main_fragment$2 ( state, component ) {
-	var div = createElement( 'div' );
-	setAttribute( div, 'svelte-84478798', '' );
-	div.className = "editor";
-	component.refs.editor = div;
+	var div;
 
 	return {
+		create: function () {
+			div = createElement( 'div' );
+			this.hydrate();
+		},
+
+		hydrate: function ( nodes ) {
+			setAttribute( div, 'svelte-84478798', '' );
+			div.className = "editor";
+		},
+
 		mount: function ( target, anchor ) {
 			insertNode( div, target, anchor );
+			component.refs.editor = div;
 		},
 
 		unmount: function () {
 			detachNode( div );
+			if ( component.refs.editor === div ) component.refs.editor = null;
 		},
 
-		destroy: function () {
-			if ( component.refs.editor === div ) component.refs.editor = null;
-		}
+		destroy: noop
 	};
 }
 
@@ -308,7 +328,11 @@ function Editor ( options ) {
 	if ( !document.getElementById( "svelte-84478798-style" ) ) add_css$2();
 
 	this._fragment = create_main_fragment$2( this._state, this );
-	if ( options.target ) this._fragment.mount( options.target, null );
+
+	if ( options.target ) {
+		this._fragment.create();
+		this._fragment.mount( options.target, null );
+	}
 
 	if ( options._root ) {
 		options._root._renderHooks.push( template$1.oncreate.bind( this ) );
@@ -368,26 +392,33 @@ function add_css$3 () {
 }
 
 function create_main_fragment$3 ( state, component ) {
-	var div = createElement( 'div' );
-	setAttribute( div, 'svelte-3219609244', '' );
-	div.className = "preview";
-	var div_1 = createElement( 'div' );
-	appendNode( div_1, div );
-	div_1.className = "renderer";
-	component.refs.preview = div_1;
+	var div, div_1;
 
 	return {
+		create: function () {
+			div = createElement( 'div' );
+			div_1 = createElement( 'div' );
+			this.hydrate();
+		},
+
+		hydrate: function ( nodes ) {
+			setAttribute( div, 'svelte-3219609244', '' );
+			div.className = "preview";
+			div_1.className = "renderer";
+		},
+
 		mount: function ( target, anchor ) {
 			insertNode( div, target, anchor );
+			appendNode( div_1, div );
+			component.refs.preview = div_1;
 		},
 
 		unmount: function () {
 			detachNode( div );
+			if ( component.refs.preview === div_1 ) component.refs.preview = null;
 		},
 
-		destroy: function () {
-			if ( component.refs.preview === div_1 ) component.refs.preview = null;
-		}
+		destroy: noop
 	};
 }
 
@@ -410,7 +441,11 @@ function Preview ( options ) {
 	if ( !document.getElementById( "svelte-3219609244-style" ) ) add_css$3();
 
 	this._fragment = create_main_fragment$3( this._state, this );
-	if ( options.target ) this._fragment.mount( options.target, null );
+
+	if ( options.target ) {
+		this._fragment.create();
+		this._fragment.mount( options.target, null );
+	}
 
 	if ( options._root ) {
 		options._root._renderHooks.push( template$2.oncreate.bind( this ) );
@@ -459,14 +494,7 @@ function add_css$4 () {
 }
 
 function create_main_fragment$4 ( state, component ) {
-	var select = createElement( 'select' );
-	setAttribute( select, 'svelte-1183016256', '' );
-	var option = createElement( 'option' );
-	appendNode( option, select );
-	option.disabled = true;
-	appendNode( createText( "Examples" ), option );
-
-	option.__value = option.textContent;
+	var select, option, text;
 
 	var each_block_value = state.examples;
 
@@ -474,20 +502,41 @@ function create_main_fragment$4 ( state, component ) {
 
 	for ( var i = 0; i < each_block_value.length; i += 1 ) {
 		each_block_iterations[i] = create_each_block( state, each_block_value, each_block_value[i], i, component );
-		each_block_iterations[i].mount( select, null );
 	}
-
-	select.className = "select";
 
 	function change_handler ( event ) {
 		component.triggerChange(event);
 	}
 
-	addEventListener( select, 'change', change_handler );
-
 	return {
+		create: function () {
+			select = createElement( 'select' );
+			option = createElement( 'option' );
+			text = createText( "Examples" );
+
+			for ( var i = 0; i < each_block_iterations.length; i += 1 ) {
+				each_block_iterations[i].create();
+			}
+			this.hydrate();
+		},
+
+		hydrate: function ( nodes ) {
+			setAttribute( select, 'svelte-1183016256', '' );
+			option.disabled = true;
+			select.className = "select";
+			addListener( select, 'change', change_handler );
+		},
+
 		mount: function ( target, anchor ) {
 			insertNode( select, target, anchor );
+			appendNode( option, select );
+			appendNode( text, option );
+
+			option.__value = option.textContent;
+
+			for ( var i = 0; i < each_block_iterations.length; i += 1 ) {
+				each_block_iterations[i].mount( select, null );
+			}
 		},
 
 		update: function ( changed, state ) {
@@ -501,6 +550,7 @@ function create_main_fragment$4 ( state, component ) {
 						each_block_iterations[i].update( changed, state, each_block_value, each_block_value[i], i );
 					} else {
 						each_block_iterations[i] = create_each_block( state, each_block_value, each_block_value[i], i, component );
+						each_block_iterations[i].create();
 						each_block_iterations[i].mount( select, null );
 					}
 				}
@@ -524,12 +574,14 @@ function create_main_fragment$4 ( state, component ) {
 		destroy: function () {
 			destroyEach( each_block_iterations, false, 0 );
 
-			removeEventListener( select, 'change', change_handler );
+			removeListener( select, 'change', change_handler );
 		}
 	};
 }
 
 function create_each_block ( state, each_block_value, example, example_index, component ) {
+	var if_block_anchor;
+
 	function get_block ( state, each_block_value, example, example_index ) {
 		if ( example === state.active ) return create_if_block;
 		return create_if_block_1;
@@ -538,9 +590,12 @@ function create_each_block ( state, each_block_value, example, example_index, co
 	var current_block = get_block( state, each_block_value, example, example_index );
 	var if_block = current_block( state, each_block_value, example, example_index, component );
 
-	var if_block_anchor = createComment();
-
 	return {
+		create: function () {
+			if_block.create();
+			if_block_anchor = createComment();
+		},
+
 		mount: function ( target, anchor ) {
 			if_block.mount( target, anchor );
 			insertNode( if_block_anchor, target, anchor );
@@ -550,41 +605,44 @@ function create_each_block ( state, each_block_value, example, example_index, co
 			if ( current_block === ( current_block = get_block( state, each_block_value, example, example_index ) ) && if_block ) {
 				if_block.update( changed, state, each_block_value, example, example_index );
 			} else {
-				{
-					if_block.unmount();
-					if_block.destroy();
-				}
+				if_block.unmount();
+				if_block.destroy();
 				if_block = current_block( state, each_block_value, example, example_index, component );
+				if_block.create();
 				if_block.mount( if_block_anchor.parentNode, if_block_anchor );
 			}
 		},
 
 		unmount: function () {
+			if_block.unmount();
 			detachNode( if_block_anchor );
 		},
 
 		destroy: function () {
-			{
-						if_block.unmount();
-						if_block.destroy();
-					}
+			if_block.destroy();
 		}
 	};
 }
 
 function create_if_block ( state, each_block_value, example, example_index, component ) {
-	var option_value_value, text_value;
-
-	var option = createElement( 'option' );
-	option.__value = option_value_value = example;
-	option.value = option.__value;
-	option.selected = true;
-	var text = createText( text_value = example );
-	appendNode( text, option );
+	var option, option_value_value, text_value, text;
 
 	return {
+		create: function () {
+			option = createElement( 'option' );
+			text = createText( text_value = example );
+			this.hydrate();
+		},
+
+		hydrate: function ( nodes ) {
+			option.__value = option_value_value = example;
+			option.value = option.__value;
+			option.selected = true;
+		},
+
 		mount: function ( target, anchor ) {
 			insertNode( option, target, anchor );
+			appendNode( text, option );
 		},
 
 		update: function ( changed, state, each_block_value, example, example_index ) {
@@ -608,17 +666,23 @@ function create_if_block ( state, each_block_value, example, example_index, comp
 }
 
 function create_if_block_1 ( state, each_block_value, example, example_index, component ) {
-	var option_value_value, text_value;
-
-	var option = createElement( 'option' );
-	option.__value = option_value_value = example;
-	option.value = option.__value;
-	var text = createText( text_value = example );
-	appendNode( text, option );
+	var option, option_value_value, text_value, text;
 
 	return {
+		create: function () {
+			option = createElement( 'option' );
+			text = createText( text_value = example );
+			this.hydrate();
+		},
+
+		hydrate: function ( nodes ) {
+			option.__value = option_value_value = example;
+			option.value = option.__value;
+		},
+
 		mount: function ( target, anchor ) {
 			insertNode( option, target, anchor );
+			appendNode( text, option );
 		},
 
 		update: function ( changed, state, each_block_value, example, example_index ) {
@@ -659,7 +723,11 @@ function Examples ( options ) {
 	if ( !document.getElementById( "svelte-1183016256-style" ) ) add_css$4();
 
 	this._fragment = create_main_fragment$4( this._state, this );
-	if ( options.target ) this._fragment.mount( options.target, null );
+
+	if ( options.target ) {
+		this._fragment.create();
+		this._fragment.mount( options.target, null );
+	}
 }
 
 assign( Examples.prototype, template$3.methods, proto );
@@ -713,24 +781,16 @@ function add_css () {
 }
 
 function create_main_fragment ( state, component ) {
-	var div = createElement( 'div' );
-	setAttribute( div, 'svelte-3709038308', '' );
-	div.className = "app";
+	var div, text, section, text_1;
+
 	var header_1_yield_fragment = create_header_yield_fragment( state, component );
 
 	var header_1 = new Header({
-		target: div,
 		_root: component._root,
 		_yield: header_1_yield_fragment
 	});
 
-	appendNode( createText( "\r\n  " ), div );
-	var section = createElement( 'section' );
-	appendNode( section, div );
-	section.className = "main";
-
 	var editor = new Editor({
-		target: section,
 		_root: component._root,
 		data: { code: state.code }
 	});
@@ -739,17 +799,38 @@ function create_main_fragment ( state, component ) {
 		component.triggerChangeCode(event.code);
 	});
 
-	appendNode( createText( "\r\n    " ), section );
-
 	var preview = new Preview({
-		target: section,
 		_root: component._root,
 		data: { layer: state.layer }
 	});
 
 	return {
+		create: function () {
+			div = createElement( 'div' );
+			header_1_yield_fragment.create();
+			header_1._fragment.create();
+			text = createText( "\r\n  " );
+			section = createElement( 'section' );
+			editor._fragment.create();
+			text_1 = createText( "\r\n    " );
+			preview._fragment.create();
+			this.hydrate();
+		},
+
+		hydrate: function ( nodes ) {
+			setAttribute( div, 'svelte-3709038308', '' );
+			div.className = "app";
+			section.className = "main";
+		},
+
 		mount: function ( target, anchor ) {
 			insertNode( div, target, anchor );
+			header_1._fragment.mount( div, null );
+			appendNode( text, div );
+			appendNode( section, div );
+			editor._fragment.mount( section, null );
+			appendNode( text_1, section );
+			preview._fragment.mount( section, null );
 		},
 
 		update: function ( changed, state ) {
@@ -782,10 +863,10 @@ function create_main_fragment ( state, component ) {
 }
 
 function create_header_yield_fragment ( state, component ) {
+
 	var examples_1_yield_fragment = create_examples_yield_fragment( state, component );
 
 	var examples_1 = new Examples({
-		target: null,
 		_root: component._root,
 		_yield: examples_1_yield_fragment,
 		data: { examples: state.examples, active: state.activeExample }
@@ -796,6 +877,11 @@ function create_header_yield_fragment ( state, component ) {
 	});
 
 	return {
+		create: function () {
+			examples_1_yield_fragment.create();
+			examples_1._fragment.create();
+		},
+
 		mount: function ( target, anchor ) {
 			examples_1._fragment.mount( target, anchor );
 		},
@@ -821,9 +907,13 @@ function create_header_yield_fragment ( state, component ) {
 }
 
 function create_examples_yield_fragment ( state, component ) {
-	var text = createText( "\r\n  " );
+	var text;
 
 	return {
+		create: function () {
+			text = createText( "\r\n  " );
+		},
+
 		mount: function ( target, anchor ) {
 			insertNode( text, target, anchor );
 		},
@@ -855,7 +945,11 @@ function App ( options ) {
 	this._renderHooks = [];
 
 	this._fragment = create_main_fragment( this._state, this );
-	if ( options.target ) this._fragment.mount( options.target, null );
+
+	if ( options.target ) {
+		this._fragment.create();
+		this._fragment.mount( options.target, null );
+	}
 	this._flush();
 }
 
@@ -976,7 +1070,8 @@ global XMLHttpRequest, localStorage, atob
 */
 
 const API_URL = 'https://api.github.com/';
-const EXAMPLES_URL = 'repos/renderium/examples/contents/';
+const EXAMPLES_URL = 'repos/renderium/examples/contents/repl';
+const BRANCH = '?ref=playground';
 const STORAGE_KEY = 'renderium-playground';
 
 function fetch (url) {
@@ -987,10 +1082,6 @@ function fetch (url) {
     xhr.onload = () => resolve(xhr.responseText);
     xhr.send();
   })
-}
-
-function isExample (example) {
-  return example.type === 'dir' && example.name !== 'boilerplate'
 }
 
 class Api {
@@ -1007,13 +1098,12 @@ class Api {
   }
 
   getExamples () {
-    return fetch(`${API_URL}${EXAMPLES_URL}`)
+    return fetch(`${API_URL}${EXAMPLES_URL}${BRANCH}`)
       .then(response => JSON.parse(response))
-      .then(result => result.filter(isExample))
   }
 
   getExample (name) {
-    return fetch(`${API_URL}${EXAMPLES_URL}${name}/index.js`)
+    return fetch(`${API_URL}${EXAMPLES_URL}/${name}${BRANCH}`)
       .then(response => JSON.parse(response))
       .then(result => atob(result.content))
   }
