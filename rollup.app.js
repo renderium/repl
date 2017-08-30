@@ -3,10 +3,12 @@ import nodeResolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 
 export default {
-  moduleName: 'Playground',
-  entry: 'src/index.js',
-  dest: 'dist/app.js',
-  format: 'iife',
+  input: 'src/index.js',
+  output: {
+    name: 'Playground',
+    file: 'dist/app.js',
+    format: 'iife'
+  },
   external: [
     'lib'
   ],
