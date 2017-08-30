@@ -851,485 +851,575 @@ return Renderium;
 
 var vectory = createCommonjsModule(function (module, exports) {
 (function (global, factory) {
-  module.exports = factory();
-}(commonjsGlobal, function () { 'use strict';
+	module.exports = factory();
+}(commonjsGlobal, (function () { 'use strict';
 
-  function Vector (x, y) {
-    this.x = x || 0;
-    this.y = y || 0;
+function Vector$1 (x, y) {
+  this.x = x || 0;
+  this.y = y || 0;
+}
+
+Vector$1.displayName = 'Vector';
+
+Vector$1.from = function (data) {
+  return new Vector$1(data[0], data[1])
+};
+
+Vector$1.fromAngle = function (angle, magnitude) {
+  return new Vector$1(magnitude * Math.cos(angle), magnitude * Math.sin(angle))
+};
+
+Vector$1.parse = function (string) {
+  return Vector$1.from(string.trim().replace(',', ' ').split(/\s+/).map(parseFloat))
+};
+
+Vector$1.add = function (one, another) {
+  return another.add(one)
+};
+
+Vector$1.prototype.add = function (vector) {
+  return new Vector$1(this.x + vector.x, this.y + vector.y)
+};
+
+Vector$1.iadd = function (one, another) {
+  return another.iadd(one)
+};
+
+Vector$1.prototype.iadd = function (vector) {
+  this.x += vector.x;
+  this.y += vector.y;
+  return this
+};
+
+Vector$1.sub = function (one, another) {
+  return another.sub(one)
+};
+
+Vector$1.prototype.sub = function (vector) {
+  return new Vector$1(this.x - vector.x, this.y - vector.y)
+};
+
+Vector$1.isub = function (one, another) {
+  return another.isub(one)
+};
+
+Vector$1.prototype.isub = function (vector) {
+  this.x -= vector.x;
+  this.y -= vector.y;
+  return this
+};
+
+Vector$1.mul = function (scalar, vector) {
+  return vector.mul(scalar)
+};
+
+Vector$1.prototype.mul = function (scalar) {
+  return new Vector$1(this.x * scalar, this.y * scalar)
+};
+
+Vector$1.imul = function (scalar, vector) {
+  return vector.imul(scalar)
+};
+
+Vector$1.prototype.imul = function (scalar) {
+  this.x *= scalar;
+  this.y *= scalar;
+  return this
+};
+
+Vector$1.div = function (scalar, vector) {
+  return vector.div(scalar)
+};
+
+Vector$1.prototype.div = function (scalar) {
+  return new Vector$1(this.x / scalar, this.y / scalar)
+};
+
+Vector$1.idiv = function (scalar, vector) {
+  return vector.idiv(scalar)
+};
+
+Vector$1.prototype.idiv = function (scalar) {
+  this.x /= scalar;
+  this.y /= scalar;
+  return this
+};
+
+Vector$1.lerp = function (one, another, t) {
+  return one.lerp(another, t)
+};
+
+Vector$1.prototype.lerp = function (vector, t) {
+  var x = (1 - t) * this.x + t * vector.x;
+  var y = (1 - t) * this.y + t * vector.y;
+  return new Vector$1(x, y)
+};
+
+Vector$1.normalized = function (vector) {
+  return vector.normalized()
+};
+
+Vector$1.prototype.normalized = function () {
+  var x = this.x;
+  var y = this.y;
+  var length = Math.sqrt(x * x + y * y);
+  if (length > 0) {
+    return new Vector$1(x / length, y / length)
+  } else {
+    return new Vector$1(0, 0)
   }
+};
 
-  Vector.displayName = 'Vector';
+Vector$1.normalize = function (vector) {
+  return vector.normalize()
+};
 
-  Vector.from = function (data) {
-    return new Vector(data[0], data[1])
-  };
-
-  Vector.fromAngle = function (angle, magnitude) {
-    return new Vector(magnitude * Math.cos(angle), magnitude * Math.sin(angle))
-  };
-
-  Vector.parse = function (string) {
-    return Vector.from(string.trim().replace(',', ' ').split(/\s+/).map(parseFloat))
-  };
-
-  Vector.add = function (one, another) {
-    return another.add(one)
-  };
-
-  Vector.prototype.add = function (vector) {
-    return new Vector(this.x + vector.x, this.y + vector.y)
-  };
-
-  Vector.iadd = function (one, another) {
-    return another.iadd(one)
-  };
-
-  Vector.prototype.iadd = function (vector) {
-    this.x += vector.x;
-    this.y += vector.y;
-    return this
-  };
-
-  Vector.sub = function (one, another) {
-    return another.sub(one)
-  };
-
-  Vector.prototype.sub = function (vector) {
-    return new Vector(this.x - vector.x, this.y - vector.y)
-  };
-
-  Vector.isub = function (one, another) {
-    return another.isub(one)
-  };
-
-  Vector.prototype.isub = function (vector) {
-    this.x -= vector.x;
-    this.y -= vector.y;
-    return this
-  };
-
-  Vector.mul = function (scalar, vector) {
-    return vector.mul(scalar)
-  };
-
-  Vector.prototype.mul = function (scalar) {
-    return new Vector(this.x * scalar, this.y * scalar)
-  };
-
-  Vector.imul = function (scalar, vector) {
-    return vector.imul(scalar)
-  };
-
-  Vector.prototype.imul = function (scalar) {
-    this.x *= scalar;
-    this.y *= scalar;
-    return this
-  };
-
-  Vector.div = function (scalar, vector) {
-    return vector.div(scalar)
-  };
-
-  Vector.prototype.div = function (scalar) {
-    return new Vector(this.x / scalar, this.y / scalar)
-  };
-
-  Vector.idiv = function (scalar, vector) {
-    return vector.idiv(scalar)
-  };
-
-  Vector.prototype.idiv = function (scalar) {
-    this.x /= scalar;
-    this.y /= scalar;
-    return this
-  };
-
-  Vector.lerp = function (one, another, t) {
-    return one.lerp(another, t)
-  };
-
-  Vector.prototype.lerp = function (vector, t) {
-    var x = (1 - t) * this.x + t * vector.x;
-    var y = (1 - t) * this.y + t * vector.y;
-    return new Vector(x, y)
-  };
-
-  Vector.normalized = function (vector) {
-    return vector.normalized()
-  };
-
-  Vector.prototype.normalized = function () {
-    var x = this.x;
-    var y = this.y;
-    var length = Math.sqrt(x * x + y * y);
-    if (length > 0) {
-      return new Vector(x / length, y / length)
-    } else {
-      return new Vector(0, 0)
-    }
-  };
-
-  Vector.normalize = function (vector) {
-    return vector.normalize()
-  };
-
-  Vector.prototype.normalize = function () {
-    var x = this.x;
-    var y = this.y;
-    var length = Math.sqrt(x * x + y * y);
-    if (length > 0) {
-      this.x = x / length;
-      this.y = y / length;
-    }
-    return this
-  };
-
-  Vector.magnitude = function (vector) {
-    return vector.magnitude()
-  };
-
-  Vector.prototype.magnitude = function () {
-    return Math.sqrt(this.x * this.x + this.y * this.y)
-  };
-
-  Vector.dot = function (one, another) {
-    return another.dot(one)
-  };
-
-  Vector.prototype.dot = function (vector) {
-    return this.x * vector.x + this.y * vector.y
-  };
-
-  Vector.distance = function (one, another) {
-    return another.distance(one)
-  };
-
-  Vector.prototype.distance = function (vector) {
-    var x = this.x - vector.x;
-    var y = this.y - vector.y;
-    return Math.sqrt(x * x + y * y)
-  };
-
-  Vector.angleOf = function (vector) {
-    return vector.angleOf()
-  };
-
-  Vector.prototype.angleOf = function () {
-    return Math.atan2(this.y, this.x)
-  };
-
-  Vector.angleTo = function (one, another) {
-    return another.angleTo(one)
-  };
-
-  Vector.prototype.angleTo = function (vector) {
-    return Math.acos(this.dot(vector) / this.magnitude() * vector.magnitude())
-  };
-
-  Vector.reset = function (one, another) {
-    return another.reset(one)
-  };
-
-  Vector.prototype.reset = function (vector) {
-    this.x = vector.x;
-    this.y = vector.y;
-    return this
-  };
-
-  Vector.zero = function (vector) {
-    return vector.zero()
-  };
-
-  Vector.prototype.zero = function () {
-    this.x = 0;
-    this.y = 0;
-    return this
-  };
-
-  Vector.set = function (x, y, vector) {
-    return vector.set(x, y)
-  };
-
-  Vector.prototype.set = function (x, y) {
-    this.x = x || 0;
-    this.y = y || 0;
-    return this
-  };
-
-  Vector.copy = function (vector) {
-    return vector.copy()
-  };
-
-  Vector.prototype.copy = function () {
-    return new Vector(this.x, this.y)
-  };
-
-  Vector.toJSON = function (vector) {
-    return vector.toJSON()
-  };
-
-  Vector.prototype.toJSON = function () {
-    return [this.x, this.y]
-  };
-
-  Vector.toString = function (vector) {
-    return vector ? vector.toString() : Function.prototype.toString.call(this)
-  };
-
-  Vector.prototype.toString = function () {
-    return this.x.toFixed(3) + ' ' + this.y.toFixed(3)
-  };
-
-  /* istanbul ignore else */
-  if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-    Vector.prototype[Symbol.toStringTag] = 'Vector';
+Vector$1.prototype.normalize = function () {
+  var x = this.x;
+  var y = this.y;
+  var length = Math.sqrt(x * x + y * y);
+  if (length > 0) {
+    this.x = x / length;
+    this.y = y / length;
   }
+  return this
+};
 
-  Vector.toArray = function (vector) {
-    return vector.toArray()
-  };
+Vector$1.magnitude = function (vector) {
+  return vector.magnitude()
+};
 
-  Vector.prototype.toArray = function () {
-    return [this.x, this.y]
-  };
+Vector$1.prototype.magnitude = function () {
+  return Math.sqrt(this.x * this.x + this.y * this.y)
+};
 
-  Vector.equals = function (one, another) {
-    return one.equals(another)
-  };
+Vector$1.dot = function (one, another) {
+  return another.dot(one)
+};
 
-  Vector.prototype.equals = function (vector) {
-    return this.x === vector.x && this.y === vector.y
-  };
+Vector$1.prototype.dot = function (vector) {
+  return this.x * vector.x + this.y * vector.y
+};
 
-  Vector.compare = function (one, another) {
-    return one.compare(another)
-  };
+Vector$1.distance = function (one, another) {
+  return another.distance(one)
+};
 
-  Vector.prototype.compare = function (vector) {
-    var thisMagnitude = this.magnitude();
-    var vectorMagnitude = vector.magnitude();
-    return (thisMagnitude > vectorMagnitude) - (vectorMagnitude > thisMagnitude)
-  };
+Vector$1.prototype.distance = function (vector) {
+  var x = this.x - vector.x;
+  var y = this.y - vector.y;
+  return Math.sqrt(x * x + y * y)
+};
 
-  Object.defineProperties(Vector.prototype, {
-    xx: {
-      configurable: true,
-      get: function () {
-        return new Vector(this.x, this.x)
-      },
-      set: function (vector) {
-        this.x = vector.x;
-        this.y = vector.x;
-      }
+Vector$1.angleOf = function (vector) {
+  return vector.angleOf()
+};
+
+Vector$1.prototype.angleOf = function () {
+  return Math.atan2(this.y, this.x)
+};
+
+Vector$1.angleTo = function (one, another) {
+  return another.angleTo(one)
+};
+
+Vector$1.prototype.angleTo = function (vector) {
+  return Math.acos(this.dot(vector) / this.magnitude() * vector.magnitude())
+};
+
+function rotate (vector, theta) {
+  var c = Math.cos(theta);
+  var s = Math.sin(theta);
+  var x = vector.x;
+  var y = vector.y;
+  vector.x = x * c - y * s;
+  vector.y = x * s + y * c;
+  return vector
+}
+
+Vector$1.rotate = function (theta, vector) {
+  return vector.rotate(theta)
+};
+
+Vector$1.prototype.rotate = function (theta) {
+  return rotate(this.copy(), theta)
+};
+
+Vector$1.irotate = function (theta, vector) {
+  return vector.irotate(theta)
+};
+
+Vector$1.prototype.irotate = function (theta) {
+  return rotate(this, theta)
+};
+
+Vector$1.reset = function (one, another) {
+  return another.reset(one)
+};
+
+Vector$1.prototype.reset = function (vector) {
+  this.x = vector.x;
+  this.y = vector.y;
+  return this
+};
+
+Vector$1.zero = function (vector) {
+  return vector.zero()
+};
+
+Vector$1.prototype.zero = function () {
+  this.x = 0;
+  this.y = 0;
+  return this
+};
+
+Vector$1.set = function (x, y, vector) {
+  return vector.set(x, y)
+};
+
+Vector$1.prototype.set = function (x, y) {
+  this.x = x || 0;
+  this.y = y || 0;
+  return this
+};
+
+Vector$1.copy = function (vector) {
+  return vector.copy()
+};
+
+Vector$1.prototype.copy = function () {
+  return new Vector$1(this.x, this.y)
+};
+
+Vector$1.clone = Vector$1.copy;
+
+Vector$1.prototype.clone = Vector$1.prototype.copy;
+
+Vector$1.toJSON = function (vector) {
+  return vector.toJSON()
+};
+
+Vector$1.prototype.toJSON = function () {
+  return [this.x, this.y]
+};
+
+Vector$1.toString = function (vector) {
+  return vector ? vector.toString() : Function.prototype.toString.call(this)
+};
+
+Vector$1.prototype.toString = function () {
+  return this.x.toFixed(3) + ' ' + this.y.toFixed(3)
+};
+
+/* istanbul ignore else */
+if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+  Vector$1.prototype[Symbol.toStringTag] = 'Vector';
+}
+
+Vector$1.toArray = function (vector) {
+  return vector.toArray()
+};
+
+Vector$1.prototype.toArray = function () {
+  return [this.x, this.y]
+};
+
+var index = 'EPSILON' in Number ? Number.EPSILON : 2.220446049250313e-16;
+
+Vector$1.equals = function (one, another) {
+  return one.equals(another)
+};
+
+Vector$1.prototype.equals = function (vector) {
+  return (
+    Math.abs(this.x - vector.x) < index &&
+    Math.abs(this.y - vector.y) < index
+  )
+};
+
+Vector$1.compare = function (one, another) {
+  return one.compare(another)
+};
+
+Vector$1.prototype.compare = function (vector) {
+  var thisMagnitude = this.magnitude();
+  var vectorMagnitude = vector.magnitude();
+  return (thisMagnitude > vectorMagnitude) - (vectorMagnitude > thisMagnitude)
+};
+
+Object.defineProperties(Vector$1.prototype, {
+  xx: {
+    configurable: true,
+    get: function () {
+      return new Vector$1(this.x, this.x)
     },
-    xy: {
-      configurable: true,
-      get: function () {
-        return new Vector(this.x, this.y)
-      },
-      set: function (vector) {
-        this.x = vector.x;
-        this.y = vector.y;
-      }
-    },
-    yx: {
-      configurable: true,
-      get: function () {
-        return new Vector(this.y, this.x)
-      },
-      set: function (vector) {
-        this.x = vector.y;
-        this.y = vector.x;
-      }
-    },
-    yy: {
-      configurable: true,
-      get: function () {
-        return new Vector(this.y, this.y)
-      },
-      set: function (vector) {
-        this.x = vector.y;
-        this.y = vector.y;
-      }
+    set: function (vector) {
+      this.x = vector.x;
+      this.y = vector.x;
     }
-  });
-
-  function VectorIterator (vector) {
-    this.vector = vector;
-    this.__idx = 0;
+  },
+  xy: {
+    configurable: true,
+    get: function () {
+      return new Vector$1(this.x, this.y)
+    },
+    set: function (vector) {
+      this.x = vector.x;
+      this.y = vector.y;
+    }
+  },
+  yx: {
+    configurable: true,
+    get: function () {
+      return new Vector$1(this.y, this.x)
+    },
+    set: function (vector) {
+      this.x = vector.y;
+      this.y = vector.x;
+    }
+  },
+  yy: {
+    configurable: true,
+    get: function () {
+      return new Vector$1(this.y, this.y)
+    },
+    set: function (vector) {
+      this.x = vector.y;
+      this.y = vector.y;
+    }
   }
+});
 
-  VectorIterator.prototype.next = function () {
-    if (this.__idx === 0) {
-      this.__idx++;
-      return {
-        done: false,
-        value: this.vector.x
-      }
-    } else if (this.__idx === 1) {
-      this.__idx++;
-      return {
-        done: false,
-        value: this.vector.y
-      }
-    } else {
-      return {
-        done: true,
-        value: void 0
-      }
+function VectorIterator (vector) {
+  this.vector = vector;
+  this.__idx = 0;
+}
+
+VectorIterator.prototype.next = function () {
+  if (this.__idx === 0) {
+    this.__idx++;
+    return {
+      done: false,
+      value: this.vector.x
     }
+  } else if (this.__idx === 1) {
+    this.__idx++;
+    return {
+      done: false,
+      value: this.vector.y
+    }
+  } else {
+    return {
+      done: true,
+      value: void 0
+    }
+  }
+};
+
+/* istanbul ignore else */
+if (typeof Symbol !== 'undefined' && Symbol.iterator) {
+  Vector$1.prototype[Symbol.iterator] = function iterator () {
+    return new VectorIterator(this)
   };
+}
 
-  /* istanbul ignore else */
-  if (typeof Symbol !== 'undefined' && Symbol.iterator) {
-    Vector.prototype[Symbol.iterator] = function iterator () {
-      return new VectorIterator(this)
-    };
-  }
+return Vector$1;
 
-  return Vector;
-
-}));
+})));
 });
 
 var dynamica = createCommonjsModule(function (module, exports) {
 (function (global, factory) {
-  module.exports = factory();
-}(commonjsGlobal, function () { 'use strict';
+	module.exports = factory();
+}(commonjsGlobal, (function () { 'use strict';
 
-  var classCallCheck = function (instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
+var commonjsGlobal$$1 = typeof window !== 'undefined' ? window : typeof commonjsGlobal !== 'undefined' ? commonjsGlobal : typeof self !== 'undefined' ? self : {};
+
+
+
+
+
+function createCommonjsModule$$1(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var performanceNow = createCommonjsModule$$1(function (module) {
+// Generated by CoffeeScript 1.12.2
+/* istanbul ignore next */
+(function () {
+  var getNanoSeconds, hrtime, loadTime, moduleLoadTime, nodeLoadTime, upTime;
+
+  if (typeof performance !== "undefined" && performance !== null && performance.now) {
+    module.exports = function () {
+      return performance.now();
+    };
+  } else if (typeof process !== "undefined" && process !== null && process.hrtime) {
+    module.exports = function () {
+      return (getNanoSeconds() - nodeLoadTime) / 1e6;
+    };
+    hrtime = process.hrtime;
+    getNanoSeconds = function () {
+      var hr;
+      hr = hrtime();
+      return hr[0] * 1e9 + hr[1];
+    };
+    moduleLoadTime = getNanoSeconds();
+    upTime = process.uptime() * 1e9;
+    nodeLoadTime = moduleLoadTime - upTime;
+  } else if (Date.now) {
+    module.exports = function () {
+      return Date.now() - loadTime;
+    };
+    loadTime = Date.now();
+  } else {
+    module.exports = function () {
+      return new Date().getTime() - loadTime;
+    };
+    loadTime = new Date().getTime();
+  }
+}).call(commonjsGlobal$$1);
+
+
+});
+
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+function noop() {}
+
+function id(value) {
+  return value;
+}
+
+function indexOf(array, item) {
+  for (var i = 0; i < array.length; i++) {
+    if (array[i] === item) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+var Animation = function () {
+  Animation.add = function add(animation) {
+    Animation.instances.push(animation);
+  };
+
+  Animation.remove = function remove(animation) {
+    var idx = indexOf(Animation.instances, animation);
+    if (idx !== -1) {
+      Animation.instances.splice(idx, 1);
     }
   };
 
-  function noop() {}
-
-  function id(value) {
-    return value;
-  }
-
-  function indexOf(array, item) {
-    for (var i = 0; i < array.length; i++) {
-      if (array[i] === item) {
-        return i;
-      }
+  Animation.animate = function animate(time) {
+    var animations = Animation.instances.concat();
+    for (var i = 0, animation; i < animations.length; i++) {
+      animation = animations[i];
+      animation.animate(time);
     }
-    return -1;
-  }
+  };
 
-  var Animation = function () {
-    Animation.add = function add(animation) {
-      Animation.instances.push(animation);
-    };
+  function Animation(options) {
+    classCallCheck(this, Animation);
 
-    Animation.remove = function remove(animation) {
-      var idx = indexOf(Animation.instances, animation);
-      if (idx !== -1) {
-        Animation.instances.splice(idx, 1);
-      }
-    };
+    var _ref = options || {},
+        duration = _ref.duration,
+        handler = _ref.handler,
+        ease = _ref.ease,
+        onstart = _ref.onstart,
+        oncancel = _ref.oncancel,
+        oncomplete = _ref.oncomplete;
 
-    Animation.animate = function animate(time) {
-      var animations = Animation.instances.concat();
-      for (var i = 0, animation; i < animations.length; i++) {
-        animation = animations[i];
-        animation.animate(time);
-      }
-    };
-
-    function Animation(options) {
-      classCallCheck(this, Animation);
-
-      var _ref = options || {};
-
-      var duration = _ref.duration;
-      var handler = _ref.handler;
-      var ease = _ref.ease;
-      var onstart = _ref.onstart;
-      var oncancel = _ref.oncancel;
-      var oncomplete = _ref.oncomplete;
-
-
-      if (isNaN(duration)) {
-        throw Error('`duration` should be defined, check https://github.com/broadsw0rd/dynamica#api');
-      }
-
-      this.startTime = 0;
-
-      this.duration = Number(duration);
-      this.handler = handler || noop;
-      this.ease = ease || id;
-
-      this.onstart = onstart || noop;
-      this.oncancel = oncancel || noop;
-      this.oncomplete = oncomplete || noop;
-
-      this.next = [];
-      this._started = false;
+    if (isNaN(duration)) {
+      throw Error('`duration` should be defined, check https://github.com/broadsw0rd/dynamica#api');
     }
 
-    Animation.prototype.start = function start() {
-      Animation.add(this);
-      this._started = true;
-      this.onstart && this.onstart();
-    };
+    this.startTime = 0;
 
-    Animation.prototype.animate = function animate(time) {
-      this.startTime = this.startTime || time;
-      time = (time - this.startTime) / this.duration;
-      if (time < 1) {
-        this.handler(this.ease(time));
-      } else {
-        this.complete();
-      }
-    };
+    this.duration = Number(duration);
+    this.handler = handler || noop;
+    this.ease = ease || id;
 
-    Animation.prototype.complete = function complete() {
-      this.remove();
-      this.handler(1);
-      this.oncomplete && this.oncomplete();
-      for (var i = 0, next; i < this.next.length; i++) {
-        next = this.next[i];
-        next.start();
-      }
-    };
+    this.onstart = onstart || noop;
+    this.oncancel = oncancel || noop;
+    this.oncomplete = oncomplete || noop;
 
-    Animation.prototype.remove = function remove() {
-      this.startTime = 0;
-      Animation.remove(this);
-      this._started = false;
-    };
+    this.next = [];
+    this._started = false;
+  }
 
-    Animation.prototype.cancel = function cancel() {
-      this.remove();
-      this.oncancel && this.oncancel();
-    };
+  Animation.prototype.start = function start() {
+    var startTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : performanceNow();
 
-    Animation.prototype.queue = function queue(animation) {
-      this.next.push(animation);
-    };
+    Animation.add(this);
+    this._started = true;
+    this.startTime = startTime;
+    this.onstart && this.onstart();
+  };
 
-    Animation.prototype.dequeue = function dequeue(animation) {
-      var idx = indexOf(this.next, animation);
-      if (idx !== -1) {
-        this.next.splice(idx, 1);
-      }
-    };
+  Animation.prototype.animate = function animate(time) {
+    var t = (time - this.startTime) / this.duration;
+    if (t < 1) {
+      this.handler(this.ease(t));
+    } else {
+      this.complete(time);
+    }
+  };
 
-    Animation.prototype.started = function started() {
-      return this._started;
-    };
+  Animation.prototype.complete = function complete() {
+    var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : performanceNow();
 
-    return Animation;
-  }();
+    if (!this.started()) return;
 
-  Animation.instances = [];
+    this.remove();
+    this.handler(1);
+    this.oncomplete && this.oncomplete();
+    for (var i = 0, next; i < this.next.length; i++) {
+      next = this.next[i];
+      next.start(Math.min(this.startTime + this.duration, time));
+      next.animate(time);
+    }
+  };
+
+  Animation.prototype.remove = function remove() {
+    Animation.remove(this);
+    this._started = false;
+  };
+
+  Animation.prototype.cancel = function cancel() {
+    if (!this.started()) return;
+
+    this.remove();
+    this.oncancel && this.oncancel();
+  };
+
+  Animation.prototype.queue = function queue(animation) {
+    this.next.push(animation);
+  };
+
+  Animation.prototype.dequeue = function dequeue(animation) {
+    var idx = indexOf(this.next, animation);
+    if (idx !== -1) {
+      this.next.splice(idx, 1);
+    }
+  };
+
+  Animation.prototype.started = function started() {
+    return this._started;
+  };
 
   return Animation;
+}();
 
-}));
+Animation.instances = [];
+
+return Animation;
+
+})));
 });
 
 var MonitorMaxSamples = 100;
@@ -1773,6 +1863,20 @@ function count(name, value) {
         counter.data.inc(value);
     }
 }
+/**
+ * lookup a profile by name
+ * @param name the name of the profile to lookup
+ */
+function getProfile(name) {
+    return profilerInstances[name];
+}
+/**
+ * lookup a counter by name
+ * @param name the name of the counter to lookup
+ */
+function getCounter(name) {
+    return counterInstances[name];
+}
 
 
 
@@ -1781,12 +1885,24 @@ var perfMonitor = Object.freeze({
 	initPerfMonitor: initPerfMonitor,
 	startFPSMonitor: startFPSMonitor,
 	startMemMonitor: startMemMonitor,
+	ProfilerDetails: ProfilerDetails,
+	CounterDetails: CounterDetails,
 	initProfiler: initProfiler,
 	initCounter: initCounter,
 	startProfile: startProfile,
 	endProfile: endProfile,
 	count: count,
-	get MonitorWidgetFlags () { return MonitorWidgetFlags; }
+	getProfile: getProfile,
+	getCounter: getCounter,
+	MonitorSamplesResult: MonitorSamplesResult,
+	MonitorMaxSamples: MonitorMaxSamples,
+	MonitorSamples: MonitorSamples,
+	BasicCounter: BasicCounter,
+	SlidingCounter: SlidingCounter,
+	Widget: Widget,
+	get MonitorWidgetFlags () { return MonitorWidgetFlags; },
+	MonitorWidget: MonitorWidget,
+	CounterWidget: CounterWidget
 });
 
 var codemirror = createCommonjsModule(function (module, exports) {
@@ -3388,7 +3504,7 @@ Context.prototype.nextLine = function () {
 
 Context.fromSaved = function (doc, saved, line) {
   if (saved instanceof SavedContext)
-    { return new Context(doc, copyState(doc.mode, saved.saved), line, saved.lookAhead) }
+    { return new Context(doc, copyState(doc.mode, saved.state), line, saved.lookAhead) }
   else
     { return new Context(doc, copyState(doc.mode, saved), line) }
 };
@@ -5032,7 +5148,7 @@ function updateHeightsInViewport(cm) {
     }
     var diff = cur.line.height - height;
     if (height < 2) { height = textHeight(display); }
-    if (diff > .001 || diff < -.001) {
+    if (diff > .005 || diff < -.005) {
       updateLineHeight(cur.line, height);
       updateWidgetHeight(cur.line);
       if (cur.rest) { for (var j = 0; j < cur.rest.length; j++)
@@ -5139,6 +5255,13 @@ function maybeScrollWindow(cm, rect) {
 function scrollPosIntoView(cm, pos, end, margin) {
   if (margin == null) { margin = 0; }
   var rect;
+  if (!cm.options.lineWrapping && pos == end) {
+    // Set pos and end to the cursor positions around the character pos sticks to
+    // If pos.sticky == "before", that is around pos.ch - 1, otherwise around pos.ch
+    // If pos == Pos(_, 0, "before"), pos and end are unchanged
+    pos = pos.ch ? Pos(pos.line, pos.sticky == "before" ? pos.ch - 1 : pos.ch, "after") : pos;
+    end = pos.sticky == "before" ? Pos(pos.line, pos.ch + 1, "before") : pos;
+  }
   for (var limit = 0; limit < 5; limit++) {
     var changed = false;
     var coords = cursorCoords(cm, pos);
@@ -5213,12 +5336,8 @@ function addToScrollTop(cm, top) {
 // shown.
 function ensureCursorVisible(cm) {
   resolveScrollToPos(cm);
-  var cur = cm.getCursor(), from = cur, to = cur;
-  if (!cm.options.lineWrapping) {
-    from = cur.ch ? Pos(cur.line, cur.ch - 1) : cur;
-    to = Pos(cur.line, cur.ch + 1);
-  }
-  cm.curOp.scrollToPos = {from: from, to: to, margin: cm.options.cursorScrollMargin};
+  var cur = cm.getCursor();
+  cm.curOp.scrollToPos = {from: cur, to: cur, margin: cm.options.cursorScrollMargin};
 }
 
 function scrollToCoords(cm, x, y) {
@@ -6963,7 +7082,7 @@ function makeChange(doc, change, ignoreReadOnly) {
   var split = sawReadOnlySpans && !ignoreReadOnly && removeReadOnlyRanges(doc, change.from, change.to);
   if (split) {
     for (var i = split.length - 1; i >= 0; --i)
-      { makeChangeInner(doc, {from: split[i].from, to: split[i].to, text: i ? [""] : change.text}); }
+      { makeChangeInner(doc, {from: split[i].from, to: split[i].to, text: i ? [""] : change.text, origin: change.origin}); }
   } else {
     makeChangeInner(doc, change);
   }
@@ -8579,15 +8698,15 @@ var commands = {
     {origin: "+move", bias: -1}
   ); },
   goLineRight: function (cm) { return cm.extendSelectionsBy(function (range) {
-    var top = cm.charCoords(range.head, "div").top + 5;
+    var top = cm.cursorCoords(range.head, "div").top + 5;
     return cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
   }, sel_move); },
   goLineLeft: function (cm) { return cm.extendSelectionsBy(function (range) {
-    var top = cm.charCoords(range.head, "div").top + 5;
+    var top = cm.cursorCoords(range.head, "div").top + 5;
     return cm.coordsChar({left: 0, top: top}, "div")
   }, sel_move); },
   goLineLeftSmart: function (cm) { return cm.extendSelectionsBy(function (range) {
-    var top = cm.charCoords(range.head, "div").top + 5;
+    var top = cm.cursorCoords(range.head, "div").top + 5;
     var pos = cm.coordsChar({left: 0, top: top}, "div");
     if (pos.ch < cm.getLine(pos.line).search(/\S/)) { return lineStartSmart(cm, range.head) }
     return pos
@@ -10142,6 +10261,8 @@ var addEditorMethods = function(CodeMirror) {
     }),
 
     operation: function(f){return runInOp(this, f)},
+    startOperation: function(){return startOperation(this)},
+    endOperation: function(){return endOperation(this)},
 
     refresh: methodOp(function() {
       var oldHeight = this.display.cachedTextHeight;
@@ -10685,7 +10806,7 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
       var markerID = node.getAttribute("cm-marker"), range$$1;
       if (markerID) {
         var found = cm.findMarks(Pos(fromLine, 0), Pos(toLine + 1, 0), recognizeMarker(+markerID));
-        if (found.length && (range$$1 = found[0].find()))
+        if (found.length && (range$$1 = found[0].find(0)))
           { addText(getBetween(cm.doc, range$$1.from, range$$1.to).join(lineSep)); }
         return
       }
@@ -10794,9 +10915,6 @@ var TextareaInput = function(cm) {
   this.pollingFast = false;
   // Self-resetting timeout for the poller
   this.polling = new Delayed();
-  // Tracks when input.reset has punted to just putting a short
-  // string into the textarea instead of the full selection.
-  this.inaccurateSelection = false;
   // Used to work around IE issue with selection being forgotten when focus moves away from textarea
   this.hasSelection = false;
   this.composing = null;
@@ -10833,12 +10951,6 @@ TextareaInput.prototype.init = function (display) {
     if (signalDOMEvent(cm, e)) { return }
     if (cm.somethingSelected()) {
       setLastCopied({lineWise: false, text: cm.getSelections()});
-      if (input.inaccurateSelection) {
-        input.prevInput = "";
-        input.inaccurateSelection = false;
-        te.value = lastCopied.text.join("\n");
-        selectInput(te);
-      }
     } else if (!cm.options.lineWiseCopyCut) {
       return
     } else {
@@ -10917,13 +11029,10 @@ TextareaInput.prototype.showSelection = function (drawn) {
 // when not typing and nothing is selected)
 TextareaInput.prototype.reset = function (typing) {
   if (this.contextMenuPending || this.composing) { return }
-  var minimal, selected, cm = this.cm, doc = cm.doc;
+  var cm = this.cm;
   if (cm.somethingSelected()) {
     this.prevInput = "";
-    var range$$1 = doc.sel.primary();
-    minimal = hasCopyEvent &&
-      (range$$1.to().line - range$$1.from().line > 100 || (selected = cm.getSelection()).length > 1000);
-    var content = minimal ? "-" : selected || cm.getSelection();
+    var content = cm.getSelection();
     this.textarea.value = content;
     if (cm.state.focused) { selectInput(this.textarea); }
     if (ie && ie_version >= 9) { this.hasSelection = content; }
@@ -10931,7 +11040,6 @@ TextareaInput.prototype.reset = function (typing) {
     this.prevInput = this.textarea.value = "";
     if (ie && ie_version >= 9) { this.hasSelection = null; }
   }
-  this.inaccurateSelection = minimal;
 };
 
 TextareaInput.prototype.getField = function () { return this.textarea };
@@ -11282,7 +11390,7 @@ CodeMirror$1.fromTextArea = fromTextArea;
 
 addLegacyProps(CodeMirror$1);
 
-CodeMirror$1.version = "5.27.2";
+CodeMirror$1.version = "5.29.0";
 
 return CodeMirror$1;
 
@@ -11297,11 +11405,6 @@ var javascript = createCommonjsModule(function (module, exports) {
   mod(codemirror);
 })(function(CodeMirror) {
 "use strict";
-
-function expressionAllowed(stream, state, backUp) {
-  return /^(?:operator|sof|keyword c|case|new|export|default|[\[{}\(,;:]|=>)$/.test(state.lastType) ||
-    (state.lastType == "quasi" && /\{\s*$/.test(stream.string.slice(0, stream.pos - (backUp || 0))))
-}
 
 CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
@@ -11347,6 +11450,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         "private": kw("modifier"),
         "protected": kw("modifier"),
         "abstract": kw("modifier"),
+        "readonly": kw("modifier"),
 
         // types
         "string": type, "number": type, "boolean": type, "any": type
@@ -11655,6 +11759,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (isTS && value == "type") {
         cx.marked = "keyword";
         return cont(typeexpr, expect("operator"), typeexpr, expect(";"));
+      } if (isTS && value == "declare") {
+        cx.marked = "keyword";
+        return cont(statement)
       } else {
         return cont(pushlex("stat"), maybelabel);
       }
@@ -11721,7 +11828,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     var expr = noComma == false ? expression : expressionNoComma;
     if (type == "=>") return cont(pushcontext, noComma ? arrowBodyNoComma : arrowBody, popcontext);
     if (type == "operator") {
-      if (/\+\+|--/.test(value)) return cont(me);
+      if (/\+\+|--/.test(value) || isTS && value == "!") return cont(me);
       if (value == "?") return cont(expression, expect(":"), expr);
       return cont(expr);
     }
@@ -11755,6 +11862,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function maybeTarget(noComma) {
     return function(type) {
       if (type == ".") return cont(noComma ? targetNoComma : target);
+      else if (type == "variable" && isTS) return cont(maybeTypeArgs, noComma ? maybeoperatorNoComma : maybeoperatorComma)
       else return pass(noComma ? expressionNoComma : expression);
     };
   }
@@ -11836,9 +11944,18 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (value == "?") return cont(maybetype);
     }
   }
-  function typeexpr(type) {
-    if (type == "variable") {cx.marked = "type"; return cont(afterType);}
+  function typeexpr(type, value) {
+    if (type == "variable") {
+      if (value == "keyof") {
+        cx.marked = "keyword";
+        return cont(typeexpr)
+      } else {
+        cx.marked = "type";
+        return cont(afterType)
+      }
+    }
     if (type == "string" || type == "number" || type == "atom") return cont(afterType);
+    if (type == "[") return cont(pushlex("]"), commasep(typeexpr, "]", ","), poplex, afterType)
     if (type == "{") return cont(pushlex("}"), commasep(typeprop, "}", ",;"), poplex, afterType)
     if (type == "(") return cont(commasep(typearg, ")"), maybeReturnType)
   }
@@ -11866,6 +11983,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (value == "|" || type == ".") return cont(typeexpr)
     if (type == "[") return cont(expect("]"), afterType)
     if (value == "extends") return cont(typeexpr)
+  }
+  function maybeTypeArgs(_, value) {
+    if (value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, afterType)
   }
   function vardef() {
     return pass(pattern, maybetype, maybeAssign, vardefCont);
@@ -11924,7 +12044,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (isTS && value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, functiondef)
   }
   function funarg(type) {
-    if (type == "spread") return cont(funarg);
+    if (type == "spread" || type == "modifier") return cont(funarg);
     return pass(pattern, maybetype, maybeAssign);
   }
   function classExpression(type, value) {
@@ -11942,13 +12062,14 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "{") return cont(pushlex("}"), classBody, poplex);
   }
   function classBody(type, value) {
-    if (type == "variable" || cx.style == "keyword") {
-      if ((value == "async" || value == "static" || value == "get" || value == "set" ||
-           (isTS && (value == "public" || value == "private" || value == "protected" || value == "readonly" || value == "abstract"))) &&
-          cx.stream.match(/^\s+[\w$\xa1-\uffff]/, false)) {
-        cx.marked = "keyword";
-        return cont(classBody);
-      }
+    if (type == "modifier" || type == "async" ||
+        (type == "variable" &&
+         (value == "static" || value == "get" || value == "set") &&
+         cx.stream.match(/^\s+[\w$\xa1-\uffff]/, false))) {
+      cx.marked = "keyword";
+      return cont(classBody);
+    }
+    if (type == "variable") {
       cx.marked = "property";
       return cont(isTS ? classfield : functiondef, classBody);
     }
@@ -12006,6 +12127,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return state.lastType == "operator" || state.lastType == "," ||
       isOperatorChar.test(textAfter.charAt(0)) ||
       /[,.]/.test(textAfter.charAt(0));
+  }
+
+  function expressionAllowed(stream, state, backUp) {
+    return state.tokenize == tokenBase &&
+      /^(?:operator|sof|keyword c|case|new|export|default|[\[{}\(,;:]|=>)$/.test(state.lastType) ||
+      (state.lastType == "quasi" && /\{\s*$/.test(stream.string.slice(0, stream.pos - (backUp || 0))))
   }
 
   // Interface
@@ -12082,6 +12209,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     jsonMode: jsonMode,
 
     expressionAllowed: expressionAllowed,
+
     skipExpression: function(state) {
       var top = state.cc[state.cc.length - 1];
       if (top == expression || top == expressionNoComma) state.cc.pop();

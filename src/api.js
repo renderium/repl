@@ -4,7 +4,6 @@ global XMLHttpRequest, localStorage, atob
 
 const API_URL = 'https://api.github.com/'
 const EXAMPLES_URL = 'repos/renderium/examples/contents/repl'
-const BRANCH = '?ref=playground'
 const STORAGE_KEY = 'renderium-playground'
 
 function fetch (url) {
@@ -31,12 +30,12 @@ class Api {
   }
 
   getExamples () {
-    return fetch(`${API_URL}${EXAMPLES_URL}${BRANCH}`)
+    return fetch(`${API_URL}${EXAMPLES_URL}`)
       .then(response => JSON.parse(response))
   }
 
   getExample (name) {
-    return fetch(`${API_URL}${EXAMPLES_URL}/${name}${BRANCH}`)
+    return fetch(`${API_URL}${EXAMPLES_URL}/${name}`)
       .then(response => JSON.parse(response))
       .then(result => atob(result.content))
   }

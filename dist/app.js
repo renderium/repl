@@ -28,11 +28,21 @@ function detachNode(node) {
 	node.parentNode.removeChild(node);
 }
 
+function reinsertBetween(before, after, target) {
+	while (before.nextSibling && before.nextSibling !== after) {
+		target.appendChild(before.parentNode.removeChild(before.nextSibling));
+	}
+}
+
 // TODO this is out of date
 function destroyEach(iterations, detach, start) {
 	for (var i = start; i < iterations.length; i += 1) {
 		if (iterations[i]) iterations[i].destroy(detach);
 	}
+}
+
+function createFragment() {
+	return document.createDocumentFragment();
 }
 
 function createElement(name) {
@@ -59,29 +69,36 @@ function setAttribute(node, attribute, value) {
 	node.setAttribute(attribute, value);
 }
 
+function destroy(detach) {
+	this.destroy = this.set = this.get = noop;
+	this.fire('destroy');
+
+	if (detach !== false) this._fragment.unmount();
+	this._fragment.destroy();
+	this._fragment = this._state = null;
+}
+
 function differs(a, b) {
 	return a !== b || ((a && typeof a === 'object') || typeof a === 'function');
 }
 
-function dispatchObservers(component, group, newState, oldState) {
+function dispatchObservers(component, group, changed, newState, oldState) {
 	for (var key in group) {
-		if (!(key in newState)) continue;
+		if (!changed[key]) continue;
 
 		var newValue = newState[key];
 		var oldValue = oldState[key];
 
-		if (differs(newValue, oldValue)) {
-			var callbacks = group[key];
-			if (!callbacks) continue;
+		var callbacks = group[key];
+		if (!callbacks) continue;
 
-			for (var i = 0; i < callbacks.length; i += 1) {
-				var callback = callbacks[i];
-				if (callback.__calling) continue;
+		for (var i = 0; i < callbacks.length; i += 1) {
+			var callback = callbacks[i];
+			if (callback.__calling) continue;
 
-				callback.__calling = true;
-				callback.call(component, newValue, oldValue);
-				callback.__calling = false;
-			}
+			callback.__calling = true;
+			callback.call(component, newValue, oldValue);
+			callback.__calling = false;
 		}
 	}
 }
@@ -137,35 +154,61 @@ function on(eventName, handler) {
 
 function set(newState) {
 	this._set(assign({}, newState));
-	this._root._flush();
+	if (this._root._lock) return;
+	this._root._lock = true;
+	callAll(this._root._beforecreate);
+	callAll(this._root._oncreate);
+	callAll(this._root._aftercreate);
+	this._root._lock = false;
 }
 
-function _flush() {
-	if (!this._renderHooks) return;
+function _set(newState) {
+	var oldState = this._state,
+		changed = {},
+		dirty = false;
 
-	while (this._renderHooks.length) {
-		this._renderHooks.pop()();
+	for (var key in newState) {
+		if (differs(newState[key], oldState[key])) changed[key] = dirty = true;
 	}
+	if (!dirty) return;
+
+	this._state = assign({}, oldState, newState);
+	this._recompute(changed, this._state, oldState, false);
+	if (this._bind) this._bind(changed, this._state);
+	dispatchObservers(this, this._observers.pre, changed, this._state, oldState);
+	this._fragment.update(changed, this._state);
+	dispatchObservers(this, this._observers.post, changed, this._state, oldState);
+}
+
+function callAll(fns) {
+	while (fns && fns.length) fns.pop()();
 }
 
 var proto = {
+	destroy: destroy,
 	get: get,
 	fire: fire,
 	observe: observe,
 	on: on,
 	set: set,
-	_flush: _flush
+	teardown: destroy,
+	_recompute: noop,
+	_set: _set
 };
+
+function encapsulateStyles$1 ( node ) {
+	setAttribute( node, 'svelte-1314837231', '' );
+}
 
 function add_css$1 () {
 	var style = createElement( 'style' );
-	style.id = "svelte-3590224031-style";
-	style.textContent = "\r\n  [svelte-3590224031].container, [svelte-3590224031] .container {\r\n    display: flex;\r\n    flex-direction: row;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n    height: 60px;\r\n    padding-left: 20px;\r\n    padding-right:  20px;\r\n    background: #212121;\r\n  }\r\n\r\n  [svelte-3590224031].text, [svelte-3590224031] .text {\r\n    font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\r\n    font-size: 24px;\r\n    margin: 0;\r\n    color: white;\r\n  }\r\n";
+	style.id = 'svelte-1314837231-style';
+	style.textContent = "[svelte-1314837231].container,[svelte-1314837231] .container{display:flex;flex-direction:row;justify-content:space-between;align-items:center;height:60px;padding-left:20px;padding-right:20px;background:#212121}[svelte-1314837231].text,[svelte-1314837231] .text{font-family:\"Helvetica Neue\", Helvetica, Arial, sans-serif;font-size:24px;margin:0;color:white}";
 	appendNode( style, document.head );
 }
 
 function create_main_fragment$1 ( state, component ) {
-	var header, h1, text, text_1;
+	var header, h1, text, text_1, slot_content_default = component._slotted.default, slot_content_default_before, slot_content_default_after;
 
 	return {
 		create: function () {
@@ -177,7 +220,7 @@ function create_main_fragment$1 ( state, component ) {
 		},
 
 		hydrate: function ( nodes ) {
-			setAttribute( header, 'svelte-3590224031', '' );
+			encapsulateStyles$1( header );
 			header.className = "container";
 			h1.className = "text";
 		},
@@ -187,12 +230,24 @@ function create_main_fragment$1 ( state, component ) {
 			appendNode( h1, header );
 			appendNode( text, h1 );
 			appendNode( text_1, header );
-			if ( component._yield ) component._yield.mount( header, null );
+
+			if (slot_content_default) {
+				appendNode(slot_content_default_before || (slot_content_default_before = createComment()), header);
+				appendNode(slot_content_default, header);
+				appendNode(slot_content_default_after || (slot_content_default_after = createComment()), header);
+			}
 		},
+
+		update: noop,
 
 		unmount: function () {
 			detachNode( header );
-			if ( component._yield ) component._yield.unmount();
+
+			if (slot_content_default) {
+				reinsertBetween(slot_content_default_before, slot_content_default_after, slot_content_default);
+				detachNode(slot_content_default_before);
+				detachNode(slot_content_default_after);
+			}
 		},
 
 		destroy: noop
@@ -200,7 +255,7 @@ function create_main_fragment$1 ( state, component ) {
 }
 
 function Header ( options ) {
-	options = options || {};
+	this.options = options;
 	this._state = options.data || {};
 
 	this._observers = {
@@ -212,37 +267,22 @@ function Header ( options ) {
 
 	this._root = options._root || this;
 	this._yield = options._yield;
+	this._bind = options._bind;
+	this._slotted = options.slots || {};
 
-	this._torndown = false;
-	if ( !document.getElementById( "svelte-3590224031-style" ) ) add_css$1();
+	if ( !document.getElementById( 'svelte-1314837231-style' ) ) add_css$1();
+
+	this.slots = {};
 
 	this._fragment = create_main_fragment$1( this._state, this );
 
 	if ( options.target ) {
 		this._fragment.create();
-		this._fragment.mount( options.target, null );
+		this._fragment.mount( options.target, options.anchor || null );
 	}
 }
 
 assign( Header.prototype, proto );
-
-Header.prototype._set = function _set ( newState ) {
-	var oldState = this._state;
-	this._state = assign( {}, oldState, newState );
-	dispatchObservers( this, this._observers.pre, newState, oldState );
-	dispatchObservers( this, this._observers.post, newState, oldState );
-};
-
-Header.prototype.teardown = Header.prototype.destroy = function destroy ( detach ) {
-	this.fire( 'destroy' );
-
-	if ( detach !== false ) this._fragment.unmount();
-	this._fragment.destroy();
-	this._fragment = null;
-
-	this._state = {};
-	this._torndown = true;
-};
 
 var template$1 = (function () {
   const settings = {
@@ -274,10 +314,14 @@ var template$1 = (function () {
 
 }());
 
+function encapsulateStyles$2 ( node ) {
+	setAttribute( node, 'svelte-3151791606', '' );
+}
+
 function add_css$2 () {
 	var style = createElement( 'style' );
-	style.id = "svelte-84478798-style";
-	style.textContent = "\r\n  [svelte-84478798].editor, [svelte-84478798] .editor {\r\n    width: 50%;\r\n    height: 100%;\r\n    box-sizing: border-box;\r\n    border-right: 5px solid #e2e2e2;\r\n  }\r\n\r\n  [svelte-84478798].CodeMirror, [svelte-84478798] .CodeMirror {\r\n    height: 100%;\r\n  }\r\n";
+	style.id = 'svelte-3151791606-style';
+	style.textContent = "[svelte-3151791606].editor,[svelte-3151791606] .editor{width:50%;height:100%;box-sizing:border-box;border-right:5px solid #e2e2e2}[svelte-3151791606].CodeMirror,[svelte-3151791606] .CodeMirror{height:100%}";
 	appendNode( style, document.head );
 }
 
@@ -291,7 +335,7 @@ function create_main_fragment$2 ( state, component ) {
 		},
 
 		hydrate: function ( nodes ) {
-			setAttribute( div, 'svelte-84478798', '' );
+			encapsulateStyles$2( div );
 			div.className = "editor";
 		},
 
@@ -300,17 +344,20 @@ function create_main_fragment$2 ( state, component ) {
 			component.refs.editor = div;
 		},
 
+		update: noop,
+
 		unmount: function () {
 			detachNode( div );
-			if ( component.refs.editor === div ) component.refs.editor = null;
 		},
 
-		destroy: noop
+		destroy: function () {
+			if ( component.refs.editor === div ) component.refs.editor = null;
+		}
 	};
 }
 
 function Editor ( options ) {
-	options = options || {};
+	this.options = options;
 	this.refs = {};
 	this._state = options.data || {};
 
@@ -323,43 +370,31 @@ function Editor ( options ) {
 
 	this._root = options._root || this;
 	this._yield = options._yield;
+	this._bind = options._bind;
 
-	this._torndown = false;
-	if ( !document.getElementById( "svelte-84478798-style" ) ) add_css$2();
+	if ( !document.getElementById( 'svelte-3151791606-style' ) ) add_css$2();
+
+	var oncreate = template$1.oncreate.bind( this );
+
+	if ( !options._root ) {
+		this._oncreate = [oncreate];
+	} else {
+	 	this._root._oncreate.push(oncreate);
+	 }
 
 	this._fragment = create_main_fragment$2( this._state, this );
 
 	if ( options.target ) {
 		this._fragment.create();
-		this._fragment.mount( options.target, null );
+		this._fragment.mount( options.target, options.anchor || null );
 	}
 
-	if ( options._root ) {
-		options._root._renderHooks.push( template$1.oncreate.bind( this ) );
-	} else {
-		template$1.oncreate.call( this );
+	if ( !options._root ) {
+		callAll(this._oncreate);
 	}
 }
 
 assign( Editor.prototype, template$1.methods, proto );
-
-Editor.prototype._set = function _set ( newState ) {
-	var oldState = this._state;
-	this._state = assign( {}, oldState, newState );
-	dispatchObservers( this, this._observers.pre, newState, oldState );
-	dispatchObservers( this, this._observers.post, newState, oldState );
-};
-
-Editor.prototype.teardown = Editor.prototype.destroy = function destroy ( detach ) {
-	this.fire( 'destroy' );
-
-	if ( detach !== false ) this._fragment.unmount();
-	this._fragment.destroy();
-	this._fragment = null;
-
-	this._state = {};
-	this._torndown = true;
-};
 
 var template$2 = (function () {
   return {
@@ -384,10 +419,14 @@ var template$2 = (function () {
   }
 }());
 
+function encapsulateStyles$3 ( node ) {
+	setAttribute( node, 'svelte-99789688', '' );
+}
+
 function add_css$3 () {
 	var style = createElement( 'style' );
-	style.id = "svelte-3219609244-style";
-	style.textContent = "\r\n  [svelte-3219609244].preview, [svelte-3219609244] .preview {\r\n    width: 50%;\r\n    height: 100%;\r\n  }\r\n";
+	style.id = 'svelte-99789688-style';
+	style.textContent = "[svelte-99789688].preview,[svelte-99789688] .preview{width:50%;height:100%}";
 	appendNode( style, document.head );
 }
 
@@ -402,7 +441,7 @@ function create_main_fragment$3 ( state, component ) {
 		},
 
 		hydrate: function ( nodes ) {
-			setAttribute( div, 'svelte-3219609244', '' );
+			encapsulateStyles$3( div );
 			div.className = "preview";
 			div_1.className = "renderer";
 		},
@@ -413,17 +452,20 @@ function create_main_fragment$3 ( state, component ) {
 			component.refs.preview = div_1;
 		},
 
+		update: noop,
+
 		unmount: function () {
 			detachNode( div );
-			if ( component.refs.preview === div_1 ) component.refs.preview = null;
 		},
 
-		destroy: noop
+		destroy: function () {
+			if ( component.refs.preview === div_1 ) component.refs.preview = null;
+		}
 	};
 }
 
 function Preview ( options ) {
-	options = options || {};
+	this.options = options;
 	this.refs = {};
 	this._state = options.data || {};
 
@@ -436,43 +478,31 @@ function Preview ( options ) {
 
 	this._root = options._root || this;
 	this._yield = options._yield;
+	this._bind = options._bind;
 
-	this._torndown = false;
-	if ( !document.getElementById( "svelte-3219609244-style" ) ) add_css$3();
+	if ( !document.getElementById( 'svelte-99789688-style' ) ) add_css$3();
+
+	var oncreate = template$2.oncreate.bind( this );
+
+	if ( !options._root ) {
+		this._oncreate = [oncreate];
+	} else {
+	 	this._root._oncreate.push(oncreate);
+	 }
 
 	this._fragment = create_main_fragment$3( this._state, this );
 
 	if ( options.target ) {
 		this._fragment.create();
-		this._fragment.mount( options.target, null );
+		this._fragment.mount( options.target, options.anchor || null );
 	}
 
-	if ( options._root ) {
-		options._root._renderHooks.push( template$2.oncreate.bind( this ) );
-	} else {
-		template$2.oncreate.call( this );
+	if ( !options._root ) {
+		callAll(this._oncreate);
 	}
 }
 
 assign( Preview.prototype, template$2.methods, proto );
-
-Preview.prototype._set = function _set ( newState ) {
-	var oldState = this._state;
-	this._state = assign( {}, oldState, newState );
-	dispatchObservers( this, this._observers.pre, newState, oldState );
-	dispatchObservers( this, this._observers.post, newState, oldState );
-};
-
-Preview.prototype.teardown = Preview.prototype.destroy = function destroy ( detach ) {
-	this.fire( 'destroy' );
-
-	if ( detach !== false ) this._fragment.unmount();
-	this._fragment.destroy();
-	this._fragment = null;
-
-	this._state = {};
-	this._torndown = true;
-};
 
 var template$3 = (function () {
   return {
@@ -486,10 +516,14 @@ var template$3 = (function () {
   }
 }());
 
+function encapsulateStyles$4 ( node ) {
+	setAttribute( node, 'svelte-423266654', '' );
+}
+
 function add_css$4 () {
 	var style = createElement( 'style' );
-	style.id = "svelte-1183016256-style";
-	style.textContent = "\r\n  [svelte-1183016256].select, [svelte-1183016256] .select {\r\n    width: 200px;\r\n  }\r\n";
+	style.id = 'svelte-423266654-style';
+	style.textContent = "[svelte-423266654].select,[svelte-423266654] .select{width:200px}";
 	appendNode( style, document.head );
 }
 
@@ -521,7 +555,7 @@ function create_main_fragment$4 ( state, component ) {
 		},
 
 		hydrate: function ( nodes ) {
-			setAttribute( select, 'svelte-1183016256', '' );
+			encapsulateStyles$4( select );
 			option.disabled = true;
 			select.className = "select";
 			addListener( select, 'change', change_handler );
@@ -544,7 +578,7 @@ function create_main_fragment$4 ( state, component ) {
 
 			var each_block_value = state.examples;
 
-			if ( 'examples' in changed || 'active' in changed ) {
+			if ( changed.examples || changed.active ) {
 				for ( var i = 0; i < each_block_value.length; i += 1 ) {
 					if ( each_block_iterations[i] ) {
 						each_block_iterations[i].update( changed, state, each_block_value, each_block_value[i], i );
@@ -582,13 +616,8 @@ function create_main_fragment$4 ( state, component ) {
 function create_each_block ( state, each_block_value, example, example_index, component ) {
 	var if_block_anchor;
 
-	function get_block ( state, each_block_value, example, example_index ) {
-		if ( example === state.active ) return create_if_block;
-		return create_if_block_1;
-	}
-
-	var current_block = get_block( state, each_block_value, example, example_index );
-	var if_block = current_block( state, each_block_value, example, example_index, component );
+	var current_block_type = select_block_type( state, each_block_value, example, example_index );
+	var if_block = current_block_type( state, each_block_value, example, example_index, component );
 
 	return {
 		create: function () {
@@ -602,12 +631,12 @@ function create_each_block ( state, each_block_value, example, example_index, co
 		},
 
 		update: function ( changed, state, each_block_value, example, example_index ) {
-			if ( current_block === ( current_block = get_block( state, each_block_value, example, example_index ) ) && if_block ) {
+			if ( current_block_type === ( current_block_type = select_block_type( state, each_block_value, example, example_index ) ) && if_block ) {
 				if_block.update( changed, state, each_block_value, example, example_index );
 			} else {
 				if_block.unmount();
 				if_block.destroy();
-				if_block = current_block( state, each_block_value, example, example_index, component );
+				if_block = current_block_type( state, each_block_value, example, example_index, component );
 				if_block.create();
 				if_block.mount( if_block_anchor.parentNode, if_block_anchor );
 			}
@@ -625,12 +654,12 @@ function create_each_block ( state, each_block_value, example, example_index, co
 }
 
 function create_if_block ( state, each_block_value, example, example_index, component ) {
-	var option, option_value_value, text_value, text;
+	var option, option_value_value, text_value = example, text;
 
 	return {
 		create: function () {
 			option = createElement( 'option' );
-			text = createText( text_value = example );
+			text = createText( text_value );
 			this.hydrate();
 		},
 
@@ -646,13 +675,12 @@ function create_if_block ( state, each_block_value, example, example_index, comp
 		},
 
 		update: function ( changed, state, each_block_value, example, example_index ) {
-			if ( option_value_value !== ( option_value_value = example ) ) {
+			if ( ( changed.examples ) && option_value_value !== ( option_value_value = example ) ) {
 				option.__value = option_value_value;
 			}
 
 			option.value = option.__value;
-
-			if ( text_value !== ( text_value = example ) ) {
+			if ( ( changed.examples ) && text_value !== ( text_value = example ) ) {
 				text.data = text_value;
 			}
 		},
@@ -666,12 +694,12 @@ function create_if_block ( state, each_block_value, example, example_index, comp
 }
 
 function create_if_block_1 ( state, each_block_value, example, example_index, component ) {
-	var option, option_value_value, text_value, text;
+	var option, option_value_value, text_value = example, text;
 
 	return {
 		create: function () {
 			option = createElement( 'option' );
-			text = createText( text_value = example );
+			text = createText( text_value );
 			this.hydrate();
 		},
 
@@ -686,13 +714,12 @@ function create_if_block_1 ( state, each_block_value, example, example_index, co
 		},
 
 		update: function ( changed, state, each_block_value, example, example_index ) {
-			if ( option_value_value !== ( option_value_value = example ) ) {
+			if ( ( changed.examples ) && option_value_value !== ( option_value_value = example ) ) {
 				option.__value = option_value_value;
 			}
 
 			option.value = option.__value;
-
-			if ( text_value !== ( text_value = example ) ) {
+			if ( ( changed.examples ) && text_value !== ( text_value = example ) ) {
 				text.data = text_value;
 			}
 		},
@@ -705,8 +732,13 @@ function create_if_block_1 ( state, each_block_value, example, example_index, co
 	};
 }
 
+function select_block_type ( state, each_block_value, example, example_index ) {
+	if ( example === state.active ) return create_if_block;
+	return create_if_block_1;
+}
+
 function Examples ( options ) {
-	options = options || {};
+	this.options = options;
 	this._state = options.data || {};
 
 	this._observers = {
@@ -718,38 +750,19 @@ function Examples ( options ) {
 
 	this._root = options._root || this;
 	this._yield = options._yield;
+	this._bind = options._bind;
 
-	this._torndown = false;
-	if ( !document.getElementById( "svelte-1183016256-style" ) ) add_css$4();
+	if ( !document.getElementById( 'svelte-423266654-style' ) ) add_css$4();
 
 	this._fragment = create_main_fragment$4( this._state, this );
 
 	if ( options.target ) {
 		this._fragment.create();
-		this._fragment.mount( options.target, null );
+		this._fragment.mount( options.target, options.anchor || null );
 	}
 }
 
 assign( Examples.prototype, template$3.methods, proto );
-
-Examples.prototype._set = function _set ( newState ) {
-	var oldState = this._state;
-	this._state = assign( {}, oldState, newState );
-	dispatchObservers( this, this._observers.pre, newState, oldState );
-	this._fragment.update( newState, this._state );
-	dispatchObservers( this, this._observers.post, newState, oldState );
-};
-
-Examples.prototype.teardown = Examples.prototype.destroy = function destroy ( detach ) {
-	this.fire( 'destroy' );
-
-	if ( detach !== false ) this._fragment.unmount();
-	this._fragment.destroy();
-	this._fragment = null;
-
-	this._state = {};
-	this._torndown = true;
-};
 
 var template = (function () {
   return {
@@ -773,21 +786,32 @@ var template = (function () {
   }
 }());
 
+function encapsulateStyles ( node ) {
+	setAttribute( node, 'svelte-267949986', '' );
+}
+
 function add_css () {
 	var style = createElement( 'style' );
-	style.id = "svelte-3709038308-style";
-	style.textContent = "\r\n  [svelte-3709038308].app, [svelte-3709038308] .app {\r\n    height: calc(100% - 60px);\r\n  }\r\n\r\n  [svelte-3709038308].main, [svelte-3709038308] .main {\r\n    display: flex;\r\n    flex-direction: row;\r\n    height: 100%;\r\n  }\r\n";
+	style.id = 'svelte-267949986-style';
+	style.textContent = "[svelte-267949986].app,[svelte-267949986] .app{height:calc(100% - 60px)}[svelte-267949986].main,[svelte-267949986] .main{display:flex;flex-direction:row;height:100%}";
 	appendNode( style, document.head );
 }
 
 function create_main_fragment ( state, component ) {
 	var div, text, section, text_1;
 
-	var header_1_yield_fragment = create_header_yield_fragment( state, component );
-
-	var header_1 = new Header({
+	var examples = new Examples({
 		_root: component._root,
-		_yield: header_1_yield_fragment
+		data: { examples: state.examples, active: state.activeExample }
+	});
+
+	examples.on( 'change', function ( event ) {
+		component.triggerChangeExample(event.example);
+	});
+
+	var header = new Header({
+		_root: component._root,
+		slots: { default: createFragment() }
 	});
 
 	var editor = new Editor({
@@ -807,8 +831,8 @@ function create_main_fragment ( state, component ) {
 	return {
 		create: function () {
 			div = createElement( 'div' );
-			header_1_yield_fragment.create();
-			header_1._fragment.create();
+			examples._fragment.create();
+			header._fragment.create();
 			text = createText( "\r\n  " );
 			section = createElement( 'section' );
 			editor._fragment.create();
@@ -818,14 +842,15 @@ function create_main_fragment ( state, component ) {
 		},
 
 		hydrate: function ( nodes ) {
-			setAttribute( div, 'svelte-3709038308', '' );
+			encapsulateStyles( div );
 			div.className = "app";
 			section.className = "main";
 		},
 
 		mount: function ( target, anchor ) {
 			insertNode( div, target, anchor );
-			header_1._fragment.mount( div, null );
+			examples._fragment.mount( header._slotted.default, null );
+			header._fragment.mount( div, null );
 			appendNode( text, div );
 			appendNode( section, div );
 			editor._fragment.mount( section, null );
@@ -834,19 +859,18 @@ function create_main_fragment ( state, component ) {
 		},
 
 		update: function ( changed, state ) {
-			header_1_yield_fragment.update( changed, state );
+			var examples_changes = {};
+			if ( changed.examples ) examples_changes.examples = state.examples;
+			if ( changed.activeExample ) examples_changes.active = state.activeExample;
+			examples._set( examples_changes );
 
 			var editor_changes = {};
-
-			if ( 'code' in changed ) editor_changes.code = state.code;
-
-			if ( Object.keys( editor_changes ).length ) editor.set( editor_changes );
+			if ( changed.code ) editor_changes.code = state.code;
+			editor._set( editor_changes );
 
 			var preview_changes = {};
-
-			if ( 'layer' in changed ) preview_changes.layer = state.layer;
-
-			if ( Object.keys( preview_changes ).length ) preview.set( preview_changes );
+			if ( changed.layer ) preview_changes.layer = state.layer;
+			preview._set( preview_changes );
 		},
 
 		unmount: function () {
@@ -854,80 +878,16 @@ function create_main_fragment ( state, component ) {
 		},
 
 		destroy: function () {
-			header_1_yield_fragment.destroy();
-			header_1.destroy( false );
+			examples.destroy( false );
+			header.destroy( false );
 			editor.destroy( false );
 			preview.destroy( false );
 		}
 	};
 }
 
-function create_header_yield_fragment ( state, component ) {
-
-	var examples_1_yield_fragment = create_examples_yield_fragment( state, component );
-
-	var examples_1 = new Examples({
-		_root: component._root,
-		_yield: examples_1_yield_fragment,
-		data: { examples: state.examples, active: state.activeExample }
-	});
-
-	examples_1.on( 'change', function ( event ) {
-		component.triggerChangeExample(event.example);
-	});
-
-	return {
-		create: function () {
-			examples_1_yield_fragment.create();
-			examples_1._fragment.create();
-		},
-
-		mount: function ( target, anchor ) {
-			examples_1._fragment.mount( target, anchor );
-		},
-
-		update: function ( changed, state ) {
-			var examples_1_changes = {};
-
-			if ( 'examples' in changed ) examples_1_changes.examples = state.examples;
-			if ( 'activeExample' in changed ) examples_1_changes.active = state.activeExample;
-
-			if ( Object.keys( examples_1_changes ).length ) examples_1.set( examples_1_changes );
-		},
-
-		unmount: function () {
-			examples_1._fragment.unmount();
-		},
-
-		destroy: function () {
-			examples_1_yield_fragment.destroy();
-			examples_1.destroy( false );
-		}
-	};
-}
-
-function create_examples_yield_fragment ( state, component ) {
-	var text;
-
-	return {
-		create: function () {
-			text = createText( "\r\n  " );
-		},
-
-		mount: function ( target, anchor ) {
-			insertNode( text, target, anchor );
-		},
-
-		unmount: function () {
-			detachNode( text );
-		},
-
-		destroy: noop
-	};
-}
-
 function App ( options ) {
-	options = options || {};
+	this.options = options;
 	this._state = assign( template.data(), options.data );
 
 	this._observers = {
@@ -939,41 +899,33 @@ function App ( options ) {
 
 	this._root = options._root || this;
 	this._yield = options._yield;
+	this._bind = options._bind;
 
-	this._torndown = false;
-	if ( !document.getElementById( "svelte-3709038308-style" ) ) add_css();
-	this._renderHooks = [];
+	if ( !document.getElementById( 'svelte-267949986-style' ) ) add_css();
+
+	if ( !options._root ) {
+		this._oncreate = [];
+		this._beforecreate = [];
+		this._aftercreate = [];
+	}
 
 	this._fragment = create_main_fragment( this._state, this );
 
 	if ( options.target ) {
 		this._fragment.create();
-		this._fragment.mount( options.target, null );
+		this._fragment.mount( options.target, options.anchor || null );
 	}
-	this._flush();
+
+	if ( !options._root ) {
+		this._lock = true;
+		callAll(this._beforecreate);
+		callAll(this._oncreate);
+		callAll(this._aftercreate);
+		this._lock = false;
+	}
 }
 
 assign( App.prototype, template.methods, proto );
-
-App.prototype._set = function _set ( newState ) {
-	var oldState = this._state;
-	this._state = assign( {}, oldState, newState );
-	dispatchObservers( this, this._observers.pre, newState, oldState );
-	this._fragment.update( newState, this._state );
-	dispatchObservers( this, this._observers.post, newState, oldState );
-	this._flush();
-};
-
-App.prototype.teardown = App.prototype.destroy = function destroy ( detach ) {
-	this.fire( 'destroy' );
-
-	if ( detach !== false ) this._fragment.unmount();
-	this._fragment.destroy();
-	this._fragment = null;
-
-	this._state = {};
-	this._torndown = true;
-};
 
 const raf = window.requestAnimationFrame;
 
@@ -1071,7 +1023,6 @@ global XMLHttpRequest, localStorage, atob
 
 const API_URL = 'https://api.github.com/';
 const EXAMPLES_URL = 'repos/renderium/examples/contents/repl';
-const BRANCH = '?ref=playground';
 const STORAGE_KEY = 'renderium-playground';
 
 function fetch (url) {
@@ -1098,12 +1049,12 @@ class Api {
   }
 
   getExamples () {
-    return fetch(`${API_URL}${EXAMPLES_URL}${BRANCH}`)
+    return fetch(`${API_URL}${EXAMPLES_URL}`)
       .then(response => JSON.parse(response))
   }
 
   getExample (name) {
-    return fetch(`${API_URL}${EXAMPLES_URL}/${name}${BRANCH}`)
+    return fetch(`${API_URL}${EXAMPLES_URL}/${name}`)
       .then(response => JSON.parse(response))
       .then(result => atob(result.content))
   }
