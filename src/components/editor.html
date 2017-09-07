@@ -1,6 +1,7 @@
 <div class="editor" ref:editor></div>
 
 <script>
+  import debounce from 'lodash.debounce'
   import { CodeMirror } from 'lib'
 
   const settings = {
@@ -14,7 +15,7 @@
       this.editor = CodeMirror(this.refs.editor, settings)
 
       this.observe('code', this.setCode.bind(this))
-      this.editor.on('change', this.triggerChange.bind(this))
+      this.editor.on('change', debounce(this.triggerChange.bind(this), 500))
     },
 
     methods: {
