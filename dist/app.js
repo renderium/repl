@@ -28,10 +28,8 @@ function detachNode(node) {
 	node.parentNode.removeChild(node);
 }
 
-function reinsertBetween(before, after, target) {
-	while (before.nextSibling && before.nextSibling !== after) {
-		target.appendChild(before.parentNode.removeChild(before.nextSibling));
-	}
+function reinsertAfter(before, target) {
+	while (before.nextSibling) target.appendChild(before.nextSibling);
 }
 
 // TODO this is out of date
@@ -70,8 +68,9 @@ function setAttribute(node, attribute, value) {
 }
 
 function destroy(detach) {
-	this.destroy = this.set = this.get = noop;
+	this.destroy = noop;
 	this.fire('destroy');
+	this.set = this.get = noop;
 
 	if (detach !== false) this._fragment.unmount();
 	this._fragment.destroy();
@@ -184,6 +183,14 @@ function callAll(fns) {
 	while (fns && fns.length) fns.pop()();
 }
 
+function _mount(target, anchor) {
+	this._fragment.mount(target, anchor);
+}
+
+function _unmount() {
+	this._fragment.unmount();
+}
+
 var proto = {
 	destroy: destroy,
 	get: get,
@@ -193,60 +200,59 @@ var proto = {
 	set: set,
 	teardown: destroy,
 	_recompute: noop,
-	_set: _set
+	_set: _set,
+	_mount: _mount,
+	_unmount: _unmount
 };
 
-function encapsulateStyles$1 ( node ) {
-	setAttribute( node, 'svelte-1314837231', '' );
+function encapsulateStyles$1(node) {
+	setAttribute(node, "svelte-1314837231", "");
 }
 
-function add_css$1 () {
-	var style = createElement( 'style' );
+function add_css$1() {
+	var style = createElement("style");
 	style.id = 'svelte-1314837231-style';
 	style.textContent = "[svelte-1314837231].container,[svelte-1314837231] .container{display:flex;flex-direction:row;justify-content:space-between;align-items:center;height:60px;padding-left:20px;padding-right:20px;background:#212121}[svelte-1314837231].text,[svelte-1314837231] .text{font-family:\"Helvetica Neue\", Helvetica, Arial, sans-serif;font-size:24px;margin:0;color:white}";
-	appendNode( style, document.head );
+	appendNode(style, document.head);
 }
 
-function create_main_fragment$1 ( state, component ) {
-	var header, h1, text, text_1, slot_content_default = component._slotted.default, slot_content_default_before, slot_content_default_after;
+function create_main_fragment$1(state, component) {
+	var header, h1, text, text_1, slot_content_default = component._slotted.default, slot_content_default_before;
 
 	return {
-		create: function () {
-			header = createElement( 'header' );
-			h1 = createElement( 'h1' );
-			text = createText( "Renderium REPL" );
-			text_1 = createText( "\r\n  " );
+		create: function() {
+			header = createElement("header");
+			h1 = createElement("h1");
+			text = createText("Renderium REPL");
+			text_1 = createText("\r\n  ");
 			this.hydrate();
 		},
 
-		hydrate: function ( nodes ) {
-			encapsulateStyles$1( header );
+		hydrate: function(nodes) {
+			encapsulateStyles$1(header);
 			header.className = "container";
 			h1.className = "text";
 		},
 
-		mount: function ( target, anchor ) {
-			insertNode( header, target, anchor );
-			appendNode( h1, header );
-			appendNode( text, h1 );
-			appendNode( text_1, header );
+		mount: function(target, anchor) {
+			insertNode(header, target, anchor);
+			appendNode(h1, header);
+			appendNode(text, h1);
+			appendNode(text_1, header);
 
 			if (slot_content_default) {
 				appendNode(slot_content_default_before || (slot_content_default_before = createComment()), header);
 				appendNode(slot_content_default, header);
-				appendNode(slot_content_default_after || (slot_content_default_after = createComment()), header);
 			}
 		},
 
 		update: noop,
 
-		unmount: function () {
-			detachNode( header );
+		unmount: function() {
+			detachNode(header);
 
 			if (slot_content_default) {
-				reinsertBetween(slot_content_default_before, slot_content_default_after, slot_content_default);
-				detachNode(slot_content_default_before);
-				detachNode(slot_content_default_after);
+				reinsertAfter(slot_content_default_before, slot_content_default);
 			}
 		},
 
@@ -254,37 +260,37 @@ function create_main_fragment$1 ( state, component ) {
 	};
 }
 
-function Header ( options ) {
+function Header(options) {
 	this.options = options;
 	this._state = options.data || {};
 
 	this._observers = {
-		pre: Object.create( null ),
-		post: Object.create( null )
+		pre: Object.create(null),
+		post: Object.create(null)
 	};
 
-	this._handlers = Object.create( null );
+	this._handlers = Object.create(null);
 
 	this._root = options._root || this;
 	this._yield = options._yield;
 	this._bind = options._bind;
 	this._slotted = options.slots || {};
 
-	if ( !document.getElementById( 'svelte-1314837231-style' ) ) add_css$1();
+	if (!document.getElementById("svelte-1314837231-style")) add_css$1();
 
 	this.slots = {};
 
-	this._fragment = create_main_fragment$1( this._state, this );
+	this._fragment = create_main_fragment$1(this._state, this);
 
-	if ( options.target ) {
+	if (options.target) {
 		this._fragment.create();
-		this._fragment.mount( options.target, options.anchor || null );
+		this._fragment.mount(options.target, options.anchor || null);
 	}
 }
 
-assign( Header.prototype, proto );
+assign(Header.prototype, proto );
 
-var template$1 = (function () {
+var template$1 = (function() {
   const settings = {
     mode: 'javascript',
     tabSize: 2,
@@ -314,89 +320,87 @@ var template$1 = (function () {
 
 }());
 
-function encapsulateStyles$2 ( node ) {
-	setAttribute( node, 'svelte-3151791606', '' );
+function encapsulateStyles$2(node) {
+	setAttribute(node, "svelte-3151791606", "");
 }
 
-function add_css$2 () {
-	var style = createElement( 'style' );
+function add_css$2() {
+	var style = createElement("style");
 	style.id = 'svelte-3151791606-style';
 	style.textContent = "[svelte-3151791606].editor,[svelte-3151791606] .editor{width:50%;height:100%;box-sizing:border-box;border-right:5px solid #e2e2e2}[svelte-3151791606].CodeMirror,[svelte-3151791606] .CodeMirror{height:100%}";
-	appendNode( style, document.head );
+	appendNode(style, document.head);
 }
 
-function create_main_fragment$2 ( state, component ) {
+function create_main_fragment$2(state, component) {
 	var div;
 
 	return {
-		create: function () {
-			div = createElement( 'div' );
+		create: function() {
+			div = createElement("div");
 			this.hydrate();
 		},
 
-		hydrate: function ( nodes ) {
-			encapsulateStyles$2( div );
+		hydrate: function(nodes) {
+			encapsulateStyles$2(div);
 			div.className = "editor";
 		},
 
-		mount: function ( target, anchor ) {
-			insertNode( div, target, anchor );
+		mount: function(target, anchor) {
+			insertNode(div, target, anchor);
 			component.refs.editor = div;
 		},
 
 		update: noop,
 
-		unmount: function () {
-			detachNode( div );
+		unmount: function() {
+			detachNode(div);
 		},
 
-		destroy: function () {
-			if ( component.refs.editor === div ) component.refs.editor = null;
+		destroy: function() {
+			if (component.refs.editor === div) component.refs.editor = null;
 		}
 	};
 }
 
-function Editor ( options ) {
+function Editor(options) {
 	this.options = options;
 	this.refs = {};
 	this._state = options.data || {};
 
 	this._observers = {
-		pre: Object.create( null ),
-		post: Object.create( null )
+		pre: Object.create(null),
+		post: Object.create(null)
 	};
 
-	this._handlers = Object.create( null );
+	this._handlers = Object.create(null);
 
 	this._root = options._root || this;
 	this._yield = options._yield;
 	this._bind = options._bind;
 
-	if ( !document.getElementById( 'svelte-3151791606-style' ) ) add_css$2();
+	if (!document.getElementById("svelte-3151791606-style")) add_css$2();
 
-	var oncreate = template$1.oncreate.bind( this );
+	var oncreate = template$1.oncreate.bind(this);
 
-	if ( !options._root ) {
+	if (!options._root) {
 		this._oncreate = [oncreate];
 	} else {
 	 	this._root._oncreate.push(oncreate);
 	 }
 
-	this._fragment = create_main_fragment$2( this._state, this );
+	this._fragment = create_main_fragment$2(this._state, this);
 
-	if ( options.target ) {
+	if (options.target) {
 		this._fragment.create();
-		this._fragment.mount( options.target, options.anchor || null );
-	}
+		this._fragment.mount(options.target, options.anchor || null);
 
-	if ( !options._root ) {
 		callAll(this._oncreate);
 	}
 }
 
-assign( Editor.prototype, template$1.methods, proto );
+assign(Editor.prototype, template$1.methods, proto );
 
-var template$2 = (function () {
+var template$2 = (function() {
   return {
     oncreate () {
       this.renderer = new lib.Renderium({
@@ -419,92 +423,90 @@ var template$2 = (function () {
   }
 }());
 
-function encapsulateStyles$3 ( node ) {
-	setAttribute( node, 'svelte-99789688', '' );
+function encapsulateStyles$3(node) {
+	setAttribute(node, "svelte-99789688", "");
 }
 
-function add_css$3 () {
-	var style = createElement( 'style' );
+function add_css$3() {
+	var style = createElement("style");
 	style.id = 'svelte-99789688-style';
 	style.textContent = "[svelte-99789688].preview,[svelte-99789688] .preview{width:50%;height:100%}";
-	appendNode( style, document.head );
+	appendNode(style, document.head);
 }
 
-function create_main_fragment$3 ( state, component ) {
+function create_main_fragment$3(state, component) {
 	var div, div_1;
 
 	return {
-		create: function () {
-			div = createElement( 'div' );
-			div_1 = createElement( 'div' );
+		create: function() {
+			div = createElement("div");
+			div_1 = createElement("div");
 			this.hydrate();
 		},
 
-		hydrate: function ( nodes ) {
-			encapsulateStyles$3( div );
+		hydrate: function(nodes) {
+			encapsulateStyles$3(div);
 			div.className = "preview";
 			div_1.className = "renderer";
 		},
 
-		mount: function ( target, anchor ) {
-			insertNode( div, target, anchor );
-			appendNode( div_1, div );
+		mount: function(target, anchor) {
+			insertNode(div, target, anchor);
+			appendNode(div_1, div);
 			component.refs.preview = div_1;
 		},
 
 		update: noop,
 
-		unmount: function () {
-			detachNode( div );
+		unmount: function() {
+			detachNode(div);
 		},
 
-		destroy: function () {
-			if ( component.refs.preview === div_1 ) component.refs.preview = null;
+		destroy: function() {
+			if (component.refs.preview === div_1) component.refs.preview = null;
 		}
 	};
 }
 
-function Preview ( options ) {
+function Preview(options) {
 	this.options = options;
 	this.refs = {};
 	this._state = options.data || {};
 
 	this._observers = {
-		pre: Object.create( null ),
-		post: Object.create( null )
+		pre: Object.create(null),
+		post: Object.create(null)
 	};
 
-	this._handlers = Object.create( null );
+	this._handlers = Object.create(null);
 
 	this._root = options._root || this;
 	this._yield = options._yield;
 	this._bind = options._bind;
 
-	if ( !document.getElementById( 'svelte-99789688-style' ) ) add_css$3();
+	if (!document.getElementById("svelte-99789688-style")) add_css$3();
 
-	var oncreate = template$2.oncreate.bind( this );
+	var oncreate = template$2.oncreate.bind(this);
 
-	if ( !options._root ) {
+	if (!options._root) {
 		this._oncreate = [oncreate];
 	} else {
 	 	this._root._oncreate.push(oncreate);
 	 }
 
-	this._fragment = create_main_fragment$3( this._state, this );
+	this._fragment = create_main_fragment$3(this._state, this);
 
-	if ( options.target ) {
+	if (options.target) {
 		this._fragment.create();
-		this._fragment.mount( options.target, options.anchor || null );
-	}
+		this._fragment.mount(options.target, options.anchor || null);
 
-	if ( !options._root ) {
 		callAll(this._oncreate);
 	}
 }
 
-assign( Preview.prototype, template$2.methods, proto );
+assign(Preview.prototype, template$2.methods, proto );
 
-var template$3 = (function () {
+var template$3 = (function() {
   return {
     methods: {
       triggerChange (e) {
@@ -516,80 +518,80 @@ var template$3 = (function () {
   }
 }());
 
-function encapsulateStyles$4 ( node ) {
-	setAttribute( node, 'svelte-423266654', '' );
+function encapsulateStyles$4(node) {
+	setAttribute(node, "svelte-423266654", "");
 }
 
-function add_css$4 () {
-	var style = createElement( 'style' );
+function add_css$4() {
+	var style = createElement("style");
 	style.id = 'svelte-423266654-style';
 	style.textContent = "[svelte-423266654].select,[svelte-423266654] .select{width:200px}";
-	appendNode( style, document.head );
+	appendNode(style, document.head);
 }
 
-function create_main_fragment$4 ( state, component ) {
+function create_main_fragment$4(state, component) {
 	var select, option, text;
 
 	var each_block_value = state.examples;
 
 	var each_block_iterations = [];
 
-	for ( var i = 0; i < each_block_value.length; i += 1 ) {
-		each_block_iterations[i] = create_each_block( state, each_block_value, each_block_value[i], i, component );
+	for (var i = 0; i < each_block_value.length; i += 1) {
+		each_block_iterations[i] = create_each_block(state, each_block_value, each_block_value[i], i, component);
 	}
 
-	function change_handler ( event ) {
+	function change_handler(event) {
 		component.triggerChange(event);
 	}
 
 	return {
-		create: function () {
-			select = createElement( 'select' );
-			option = createElement( 'option' );
-			text = createText( "Examples" );
+		create: function() {
+			select = createElement("select");
+			option = createElement("option");
+			text = createText("Examples");
 
-			for ( var i = 0; i < each_block_iterations.length; i += 1 ) {
+			for (var i = 0; i < each_block_iterations.length; i += 1) {
 				each_block_iterations[i].create();
 			}
 			this.hydrate();
 		},
 
-		hydrate: function ( nodes ) {
-			encapsulateStyles$4( select );
+		hydrate: function(nodes) {
+			encapsulateStyles$4(select);
 			option.disabled = true;
 			select.className = "select";
-			addListener( select, 'change', change_handler );
+			addListener(select, "change", change_handler);
 		},
 
-		mount: function ( target, anchor ) {
-			insertNode( select, target, anchor );
-			appendNode( option, select );
-			appendNode( text, option );
+		mount: function(target, anchor) {
+			insertNode(select, target, anchor);
+			appendNode(option, select);
+			appendNode(text, option);
 
 			option.__value = option.textContent;
 
-			for ( var i = 0; i < each_block_iterations.length; i += 1 ) {
-				each_block_iterations[i].mount( select, null );
+			for (var i = 0; i < each_block_iterations.length; i += 1) {
+				each_block_iterations[i].mount(select, null);
 			}
 		},
 
-		update: function ( changed, state ) {
+		update: function(changed, state) {
 			option.__value = option.textContent;
 
 			var each_block_value = state.examples;
 
-			if ( changed.examples || changed.active ) {
-				for ( var i = 0; i < each_block_value.length; i += 1 ) {
-					if ( each_block_iterations[i] ) {
-						each_block_iterations[i].update( changed, state, each_block_value, each_block_value[i], i );
+			if (changed.examples || changed.active) {
+				for (var i = 0; i < each_block_value.length; i += 1) {
+					if (each_block_iterations[i]) {
+						each_block_iterations[i].update(changed, state, each_block_value, each_block_value[i], i);
 					} else {
-						each_block_iterations[i] = create_each_block( state, each_block_value, each_block_value[i], i, component );
+						each_block_iterations[i] = create_each_block(state, each_block_value, each_block_value[i], i, component);
 						each_block_iterations[i].create();
-						each_block_iterations[i].mount( select, null );
+						each_block_iterations[i].mount(select, null);
 					}
 				}
 
-				for ( ; i < each_block_iterations.length; i += 1 ) {
+				for (; i < each_block_iterations.length; i += 1) {
 					each_block_iterations[i].unmount();
 					each_block_iterations[i].destroy();
 				}
@@ -597,174 +599,174 @@ function create_main_fragment$4 ( state, component ) {
 			}
 		},
 
-		unmount: function () {
-			detachNode( select );
+		unmount: function() {
+			detachNode(select);
 
-			for ( var i = 0; i < each_block_iterations.length; i += 1 ) {
+			for (var i = 0; i < each_block_iterations.length; i += 1) {
 				each_block_iterations[i].unmount();
 			}
 		},
 
-		destroy: function () {
-			destroyEach( each_block_iterations, false, 0 );
+		destroy: function() {
+			destroyEach(each_block_iterations, false, 0);
 
-			removeListener( select, 'change', change_handler );
+			removeListener(select, "change", change_handler);
 		}
 	};
 }
 
-function create_each_block ( state, each_block_value, example, example_index, component ) {
+function create_each_block(state, each_block_value, example, example_index, component) {
 	var if_block_anchor;
 
-	var current_block_type = select_block_type( state, each_block_value, example, example_index );
-	var if_block = current_block_type( state, each_block_value, example, example_index, component );
+	var current_block_type = select_block_type(state, each_block_value, example, example_index);
+	var if_block = current_block_type(state, each_block_value, example, example_index, component);
 
 	return {
-		create: function () {
+		create: function() {
 			if_block.create();
 			if_block_anchor = createComment();
 		},
 
-		mount: function ( target, anchor ) {
-			if_block.mount( target, anchor );
-			insertNode( if_block_anchor, target, anchor );
+		mount: function(target, anchor) {
+			if_block.mount(target, anchor);
+			insertNode(if_block_anchor, target, anchor);
 		},
 
-		update: function ( changed, state, each_block_value, example, example_index ) {
-			if ( current_block_type === ( current_block_type = select_block_type( state, each_block_value, example, example_index ) ) && if_block ) {
-				if_block.update( changed, state, each_block_value, example, example_index );
+		update: function(changed, state, each_block_value, example, example_index) {
+			if (current_block_type === (current_block_type = select_block_type(state, each_block_value, example, example_index)) && if_block) {
+				if_block.update(changed, state, each_block_value, example, example_index);
 			} else {
 				if_block.unmount();
 				if_block.destroy();
-				if_block = current_block_type( state, each_block_value, example, example_index, component );
+				if_block = current_block_type(state, each_block_value, example, example_index, component);
 				if_block.create();
-				if_block.mount( if_block_anchor.parentNode, if_block_anchor );
+				if_block.mount(if_block_anchor.parentNode, if_block_anchor);
 			}
 		},
 
-		unmount: function () {
+		unmount: function() {
 			if_block.unmount();
-			detachNode( if_block_anchor );
+			detachNode(if_block_anchor);
 		},
 
-		destroy: function () {
+		destroy: function() {
 			if_block.destroy();
 		}
 	};
 }
 
-function create_if_block ( state, each_block_value, example, example_index, component ) {
+function create_if_block(state, each_block_value, example, example_index, component) {
 	var option, option_value_value, text_value = example, text;
 
 	return {
-		create: function () {
-			option = createElement( 'option' );
-			text = createText( text_value );
+		create: function() {
+			option = createElement("option");
+			text = createText(text_value);
 			this.hydrate();
 		},
 
-		hydrate: function ( nodes ) {
+		hydrate: function(nodes) {
 			option.__value = option_value_value = example;
 			option.value = option.__value;
 			option.selected = true;
 		},
 
-		mount: function ( target, anchor ) {
-			insertNode( option, target, anchor );
-			appendNode( text, option );
+		mount: function(target, anchor) {
+			insertNode(option, target, anchor);
+			appendNode(text, option);
 		},
 
-		update: function ( changed, state, each_block_value, example, example_index ) {
-			if ( ( changed.examples ) && option_value_value !== ( option_value_value = example ) ) {
+		update: function(changed, state, each_block_value, example, example_index) {
+			if ( (changed.examples) && option_value_value !== (option_value_value = example) ) {
 				option.__value = option_value_value;
 			}
 
 			option.value = option.__value;
-			if ( ( changed.examples ) && text_value !== ( text_value = example ) ) {
+			if ( (changed.examples) && text_value !== (text_value = example) ) {
 				text.data = text_value;
 			}
 		},
 
-		unmount: function () {
-			detachNode( option );
+		unmount: function() {
+			detachNode(option);
 		},
 
 		destroy: noop
 	};
 }
 
-function create_if_block_1 ( state, each_block_value, example, example_index, component ) {
+function create_if_block_1(state, each_block_value, example, example_index, component) {
 	var option, option_value_value, text_value = example, text;
 
 	return {
-		create: function () {
-			option = createElement( 'option' );
-			text = createText( text_value );
+		create: function() {
+			option = createElement("option");
+			text = createText(text_value);
 			this.hydrate();
 		},
 
-		hydrate: function ( nodes ) {
+		hydrate: function(nodes) {
 			option.__value = option_value_value = example;
 			option.value = option.__value;
 		},
 
-		mount: function ( target, anchor ) {
-			insertNode( option, target, anchor );
-			appendNode( text, option );
+		mount: function(target, anchor) {
+			insertNode(option, target, anchor);
+			appendNode(text, option);
 		},
 
-		update: function ( changed, state, each_block_value, example, example_index ) {
-			if ( ( changed.examples ) && option_value_value !== ( option_value_value = example ) ) {
+		update: function(changed, state, each_block_value, example, example_index) {
+			if ( (changed.examples) && option_value_value !== (option_value_value = example) ) {
 				option.__value = option_value_value;
 			}
 
 			option.value = option.__value;
-			if ( ( changed.examples ) && text_value !== ( text_value = example ) ) {
+			if ( (changed.examples) && text_value !== (text_value = example) ) {
 				text.data = text_value;
 			}
 		},
 
-		unmount: function () {
-			detachNode( option );
+		unmount: function() {
+			detachNode(option);
 		},
 
 		destroy: noop
 	};
 }
 
-function select_block_type ( state, each_block_value, example, example_index ) {
-	if ( example === state.active ) return create_if_block;
+function select_block_type(state, each_block_value, example, example_index) {
+	if (example === state.active) return create_if_block;
 	return create_if_block_1;
 }
 
-function Examples ( options ) {
+function Examples(options) {
 	this.options = options;
 	this._state = options.data || {};
 
 	this._observers = {
-		pre: Object.create( null ),
-		post: Object.create( null )
+		pre: Object.create(null),
+		post: Object.create(null)
 	};
 
-	this._handlers = Object.create( null );
+	this._handlers = Object.create(null);
 
 	this._root = options._root || this;
 	this._yield = options._yield;
 	this._bind = options._bind;
 
-	if ( !document.getElementById( 'svelte-423266654-style' ) ) add_css$4();
+	if (!document.getElementById("svelte-423266654-style")) add_css$4();
 
-	this._fragment = create_main_fragment$4( this._state, this );
+	this._fragment = create_main_fragment$4(this._state, this);
 
-	if ( options.target ) {
+	if (options.target) {
 		this._fragment.create();
-		this._fragment.mount( options.target, options.anchor || null );
+		this._fragment.mount(options.target, options.anchor || null);
 	}
 }
 
-assign( Examples.prototype, template$3.methods, proto );
+assign(Examples.prototype, template$3.methods, proto );
 
-var template = (function () {
+var template = (function() {
   return {
     data () {
       return {
@@ -786,18 +788,18 @@ var template = (function () {
   }
 }());
 
-function encapsulateStyles ( node ) {
-	setAttribute( node, 'svelte-267949986', '' );
+function encapsulateStyles(node) {
+	setAttribute(node, "svelte-267949986", "");
 }
 
-function add_css () {
-	var style = createElement( 'style' );
+function add_css() {
+	var style = createElement("style");
 	style.id = 'svelte-267949986-style';
 	style.textContent = "[svelte-267949986].app,[svelte-267949986] .app{height:calc(100% - 60px)}[svelte-267949986].main,[svelte-267949986] .main{display:flex;flex-direction:row;height:100%}";
-	appendNode( style, document.head );
+	appendNode(style, document.head);
 }
 
-function create_main_fragment ( state, component ) {
+function create_main_fragment(state, component) {
 	var div, text, section, text_1;
 
 	var examples = new Examples({
@@ -805,7 +807,7 @@ function create_main_fragment ( state, component ) {
 		data: { examples: state.examples, active: state.activeExample }
 	});
 
-	examples.on( 'change', function ( event ) {
+	examples.on("change", function(event) {
 		component.triggerChangeExample(event.example);
 	});
 
@@ -819,7 +821,7 @@ function create_main_fragment ( state, component ) {
 		data: { code: state.code }
 	});
 
-	editor.on( 'change', function ( event ) {
+	editor.on("change", function(event) {
 		component.triggerChangeCode(event.code);
 	});
 
@@ -829,94 +831,92 @@ function create_main_fragment ( state, component ) {
 	});
 
 	return {
-		create: function () {
-			div = createElement( 'div' );
+		create: function() {
+			div = createElement("div");
 			examples._fragment.create();
 			header._fragment.create();
-			text = createText( "\r\n  " );
-			section = createElement( 'section' );
+			text = createText("\r\n  ");
+			section = createElement("section");
 			editor._fragment.create();
-			text_1 = createText( "\r\n    " );
+			text_1 = createText("\r\n    ");
 			preview._fragment.create();
 			this.hydrate();
 		},
 
-		hydrate: function ( nodes ) {
-			encapsulateStyles( div );
+		hydrate: function(nodes) {
+			encapsulateStyles(div);
 			div.className = "app";
 			section.className = "main";
 		},
 
-		mount: function ( target, anchor ) {
-			insertNode( div, target, anchor );
-			examples._fragment.mount( header._slotted.default, null );
-			header._fragment.mount( div, null );
-			appendNode( text, div );
-			appendNode( section, div );
-			editor._fragment.mount( section, null );
-			appendNode( text_1, section );
-			preview._fragment.mount( section, null );
+		mount: function(target, anchor) {
+			insertNode(div, target, anchor);
+			examples._mount(header._slotted.default, null);
+			header._mount(div, null);
+			appendNode(text, div);
+			appendNode(section, div);
+			editor._mount(section, null);
+			appendNode(text_1, section);
+			preview._mount(section, null);
 		},
 
-		update: function ( changed, state ) {
+		update: function(changed, state) {
 			var examples_changes = {};
-			if ( changed.examples ) examples_changes.examples = state.examples;
-			if ( changed.activeExample ) examples_changes.active = state.activeExample;
+			if (changed.examples) examples_changes.examples = state.examples;
+			if (changed.activeExample) examples_changes.active = state.activeExample;
 			examples._set( examples_changes );
 
 			var editor_changes = {};
-			if ( changed.code ) editor_changes.code = state.code;
+			if (changed.code) editor_changes.code = state.code;
 			editor._set( editor_changes );
 
 			var preview_changes = {};
-			if ( changed.layer ) preview_changes.layer = state.layer;
+			if (changed.layer) preview_changes.layer = state.layer;
 			preview._set( preview_changes );
 		},
 
-		unmount: function () {
-			detachNode( div );
+		unmount: function() {
+			detachNode(div);
 		},
 
-		destroy: function () {
-			examples.destroy( false );
-			header.destroy( false );
-			editor.destroy( false );
-			preview.destroy( false );
+		destroy: function() {
+			examples.destroy(false);
+			header.destroy(false);
+			editor.destroy(false);
+			preview.destroy(false);
 		}
 	};
 }
 
-function App ( options ) {
+function App(options) {
 	this.options = options;
-	this._state = assign( template.data(), options.data );
+	this._state = assign(template.data(), options.data);
 
 	this._observers = {
-		pre: Object.create( null ),
-		post: Object.create( null )
+		pre: Object.create(null),
+		post: Object.create(null)
 	};
 
-	this._handlers = Object.create( null );
+	this._handlers = Object.create(null);
 
 	this._root = options._root || this;
 	this._yield = options._yield;
 	this._bind = options._bind;
 
-	if ( !document.getElementById( 'svelte-267949986-style' ) ) add_css();
+	if (!document.getElementById("svelte-267949986-style")) add_css();
 
-	if ( !options._root ) {
+	if (!options._root) {
 		this._oncreate = [];
 		this._beforecreate = [];
 		this._aftercreate = [];
 	}
 
-	this._fragment = create_main_fragment( this._state, this );
+	this._fragment = create_main_fragment(this._state, this);
 
-	if ( options.target ) {
+	if (options.target) {
 		this._fragment.create();
-		this._fragment.mount( options.target, options.anchor || null );
-	}
+		this._fragment.mount(options.target, options.anchor || null);
 
-	if ( !options._root ) {
 		this._lock = true;
 		callAll(this._beforecreate);
 		callAll(this._oncreate);
@@ -925,7 +925,7 @@ function App ( options ) {
 	}
 }
 
-assign( App.prototype, template.methods, proto );
+assign(App.prototype, template.methods, proto );
 
 const raf = window.requestAnimationFrame;
 

@@ -27,7 +27,7 @@
     "build": "npm run build:lib && npm run build:app",
     "build:app": "rollup -c rollup.app.js",
     "build:lib": "rollup -c rollup.lib.js",
-    "min": "uglifyjs -c -m dist/app.js > dist/app.min.js"
+    "min": "uglifyjs dist/app.js -c -m > dist/app.min.js"
   },
   "devDependencies": {
     "rollup": "0.49.2",
@@ -35,14 +35,14 @@
     "rollup-plugin-node-resolve": "3.0.0",
     "rollup-plugin-svelte": "3.1.0",
     "snazzy": "7.0.0",
-    "standard": "^10.0.3",
-    "uglifyjs": "2.4.11"
+    "standard": "10.0.3",
+    "uglify-js": "3.0.28"
   },
   "dependencies": {
     "codemirror": "5.29.0",
-    "dynamica": "1.1.0",
+    "dynamica": "1.1.1",
     "perf-monitor": "0.4.1",
     "renderium": "0.3.0",
-    "vectory": "1.2.0"
+    "vectory": "1.2.1"
   }
 }
