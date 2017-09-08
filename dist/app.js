@@ -690,10 +690,12 @@ var template$1 = (function() {
         this.editor.setValue(code);
       },
 
-      triggerChange () {
-        this.fire('change', {
-          code: this.editor.getValue()
-        });
+      triggerChange (instance, options) {
+        if (options.origin !== 'setValue') {
+          this.fire('change', {
+            code: this.editor.getValue()
+          });
+        }
       }
     }
   }
@@ -701,13 +703,13 @@ var template$1 = (function() {
 }());
 
 function encapsulateStyles$2(node) {
-	setAttribute(node, "svelte-4056869388", "");
+	setAttribute(node, "svelte-1887847417", "");
 }
 
 function add_css$2() {
 	var style = createElement("style");
-	style.id = 'svelte-4056869388-style';
-	style.textContent = "[svelte-4056869388].editor,[svelte-4056869388] .editor{width:50%;height:100%;box-sizing:border-box;border-right:5px solid #e2e2e2}[svelte-4056869388].CodeMirror,[svelte-4056869388] .CodeMirror{height:100%}";
+	style.id = 'svelte-1887847417-style';
+	style.textContent = "[svelte-1887847417].editor,[svelte-1887847417] .editor{width:50%;height:100%;box-sizing:border-box;border-right:5px solid #e2e2e2}[svelte-1887847417].CodeMirror,[svelte-1887847417] .CodeMirror{height:100%}";
 	appendNode(style, document.head);
 }
 
@@ -758,7 +760,7 @@ function Editor(options) {
 	this._yield = options._yield;
 	this._bind = options._bind;
 
-	if (!document.getElementById("svelte-4056869388-style")) add_css$2();
+	if (!document.getElementById("svelte-1887847417-style")) add_css$2();
 
 	var oncreate = template$1.oncreate.bind(this);
 

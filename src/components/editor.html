@@ -23,10 +23,12 @@
         this.editor.setValue(code)
       },
 
-      triggerChange () {
-        this.fire('change', {
-          code: this.editor.getValue()
-        })
+      triggerChange (instance, options) {
+        if (options.origin !== 'setValue') {
+          this.fire('change', {
+            code: this.editor.getValue()
+          })
+        }
       }
     }
   }

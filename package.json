@@ -43,7 +43,7 @@
     "dynamica": "1.1.1",
     "lodash.debounce": "4.0.8",
     "perf-monitor": "0.4.1",
-    "renderium": "0.3.0",
+    "renderium": "0.4.0",
     "vectory": "1.2.1"
   }
 }

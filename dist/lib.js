@@ -1,404 +1,340 @@
 var Lib = (function () {
 'use strict';
 
-var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-
-
-
-
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
-
-var renderium = createCommonjsModule(function (module, exports) {
-(function (global, factory) {
-	module.exports = factory();
-}(commonjsGlobal, (function () { 'use strict';
-
 /* This program is free software. It comes without any warranty, to
      * the extent permitted by applicable law. You can redistribute it
      * and/or modify it under the terms of the Do What The Fuck You Want
      * To Public License, Version 2, as published by Sam Hocevar. See
      * http://www.wtfpl.net/ for more details. */
-var index = leftPad;
+'use strict';
+var leftPad_1$1 = leftPad;
 
-var cache = ['', ' ', '  ', '   ', '    ', '     ', '      ', '       ', '        ', '         '];
+var cache = [
+  '',
+  ' ',
+  '  ',
+  '   ',
+  '    ',
+  '     ',
+  '      ',
+  '       ',
+  '        ',
+  '         '
+];
 
-function leftPad(str, len, ch) {
+function leftPad (str, len, ch) {
   // convert `str` to `string`
   str = str + '';
   // `len` is the `pad`'s length now
   len = len - str.length;
   // doesn't need to pad
-  if (len <= 0) return str;
+  if (len <= 0) { return str; }
   // `ch` defaults to `' '`
-  if (!ch && ch !== 0) ch = ' ';
+  if (!ch && ch !== 0) { ch = ' '; }
   // convert `ch` to `string`
   ch = ch + '';
   // cache common use cases
-  if (ch === ' ' && len < 10) return cache[len] + str;
+  if (ch === ' ' && len < 10) { return cache[len] + str; }
   // `pad` starts with an empty string
   var pad = '';
   // loop
   while (true) {
     // add `ch` to `pad` if `len` is odd
-    if (len & 1) pad += ch;
+    if (len & 1) { pad += ch; }
     // divide `len` by 2, ditch the remainder
     len >>= 1;
     // "double" the `ch` so this operation count grows logarithmically on `len`
     // each time `ch` is "doubled", the `len` would need to be "doubled" too
     // similar to finding a value in binary search tree, hence O(log(n))
-    if (len) ch += ch;
+    if (len) { ch += ch; }
     // `len` is 0, exit the loop
-    else break;
+    else { break; }
   }
   // pad `str`!
   return pad + str;
 }
 
-var classCallCheck = function (instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-};
-
-
-
-
-
-
-
-
-
-
-
-var inherits = function (subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-};
-
-
-
-
-
-
-
-
-
-
-
-var possibleConstructorReturn = function (self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return call && (typeof call === "object" || typeof call === "function") ? call : self;
-};
-
 var imageStatuses = {};
 var images = {};
 
-var ImageLoader = function () {
-  function ImageLoader() {
-    classCallCheck(this, ImageLoader);
+var ImageLoader = function ImageLoader () {};
+
+ImageLoader.prototype.onload = function onload () {};
+
+ImageLoader.prototype.getImage = function getImage (url) {
+  return images[url]
+};
+
+ImageLoader.prototype.getStatus = function getStatus (url) {
+  return imageStatuses[url]
+};
+
+ImageLoader.prototype.load = function load (url) {
+    var this$1 = this;
+
+  var status = this.getStatus(url);
+  if (status !== ImageLoader.IMAGE_STATUS_LOADING && status !== ImageLoader.IMAGE_STATUS_LOADED) {
+    imageStatuses[url] = ImageLoader.IMAGE_STATUS_LOADING;
+    var image = new window.Image();
+    image.onload = function () {
+      imageStatuses[url] = ImageLoader.IMAGE_STATUS_LOADED;
+      images[url] = image;
+      this$1.onload();
+    };
+    image.src = url;
   }
-
-  ImageLoader.prototype.onload = function onload() {};
-
-  ImageLoader.prototype.getImage = function getImage(url) {
-    return images[url];
-  };
-
-  ImageLoader.prototype.getStatus = function getStatus(url) {
-    return imageStatuses[url];
-  };
-
-  ImageLoader.prototype.load = function load(url) {
-    var status = this.getStatus(url);
-    var _this = this;
-    if (status !== ImageLoader.IMAGE_STATUS_LOADING && status !== ImageLoader.IMAGE_STATUS_LOADED) {
-      imageStatuses[url] = ImageLoader.IMAGE_STATUS_LOADING;
-      var image = new window.Image();
-      image.onload = function onload() {
-        imageStatuses[url] = ImageLoader.IMAGE_STATUS_LOADED;
-        images[url] = this;
-        _this.onload();
-      };
-      image.src = url;
-    }
-  };
-
-  return ImageLoader;
-}();
+};
 
 ImageLoader.prototype.IMAGE_STATUS_LOADING = ImageLoader.IMAGE_STATUS_LOADING = 1;
 ImageLoader.prototype.IMAGE_STATUS_LOADED = ImageLoader.IMAGE_STATUS_LOADED = 2;
 
-var Component = function () {
-  function Component() {
-    classCallCheck(this, Component);
-  }
+var Scheduler = function Scheduler (tasks) {
+  if ( tasks === void 0 ) tasks = {};
 
-  Component.isComponent = function isComponent(component) {
-    return typeof component.plot === 'function' && typeof component.draw === 'function' && typeof component.shouldRedraw === 'function' && typeof component.onadd === 'function' && typeof component.onremove === 'function';
-  };
+  this.tasks = tasks;
+};
 
-  Component.prototype.onadd = function onadd(layer) {};
+Scheduler.prototype.plan = function plan (name) {
+  this.tasks[name] = true;
+};
 
-  Component.prototype.onremove = function onremove(layer) {};
+Scheduler.prototype.complete = function complete (name) {
+  this.tasks[name] = false;
+};
 
-  Component.prototype.plot = function plot(layer) {};
+Scheduler.prototype.should = function should (name) {
+  return Boolean(this.tasks[name])
+};
 
-  Component.prototype.draw = function draw(layer) {};
+var Component = function Component () {};
 
-  Component.prototype.shouldRedraw = function shouldRedraw() {
-    return true;
-  };
+Component.isComponent = function isComponent (component) {
+  return (
+    typeof component.plot === 'function' &&
+    typeof component.draw === 'function' &&
+    typeof component.shouldRedraw === 'function' &&
+    typeof component.onadd === 'function' &&
+    typeof component.onremove === 'function'
+  )
+};
+Component.prototype.onadd = function onadd (layer) {};
+Component.prototype.onremove = function onremove (layer) {};
+Component.prototype.plot = function plot (layer) {};
+Component.prototype.draw = function draw (layer) {};
+Component.prototype.shouldRedraw = function shouldRedraw () {
+  return true
+};
 
-  return Component;
-}();
-
-function throwError(message) {
-  throw new Error("\r\nRenderium: " + message);
+function throwError (message) {
+  throw new Error(("\r\nRenderium: " + message))
 }
 
-var utils = Object.freeze({
-	throwError: throwError
-});
+var BaseLayer = function BaseLayer (ref) {
+  var Vector = ref.Vector;
+  var stats = ref.stats;
+  var width = ref.width;
+  var height = ref.height;
 
-var BaseLayer = function () {
-  function BaseLayer(_ref) {
-    var Vector = _ref.Vector,
-        stats = _ref.stats,
-        width = _ref.width,
-        height = _ref.height;
-    classCallCheck(this, BaseLayer);
+  this.Vector = Vector || window.Vector;
+  this.width = Number(width) || BaseLayer.DEFAULT_WIDTH;
+  this.height = Number(height) || BaseLayer.DEFAULT_HEIGHT;
+  this.logStats = Boolean(stats);
 
-    this.Vector = Vector || window.Vector;
-    this.width = Number(width) || BaseLayer.DEFAULT_WIDTH;
-    this.height = Number(height) || BaseLayer.DEFAULT_HEIGHT;
-    this.logStats = Boolean(stats);
+  this.canvas = document.createElement('canvas');
 
-    this.canvas = document.createElement('canvas');
+  this.imageLoader = new ImageLoader();
+  this.scheduler = new Scheduler({
+    redraw: false,
+    drawComponents: false
+  });
 
-    this.imageLoader = new ImageLoader();
+  this.components = [];
+  this.stats = {};
+};
 
-    this.components = [];
-    this.stats = {};
-    this._shouldRedraw = false;
-    this._renderCycleStarted = false;
+BaseLayer.prototype.scale = function scale (ref) {
+    var width = ref.width;
+    var height = ref.height;
+
+  if (this.shouldDrawComponents()) {
+    throwError('Layer#scale() is forbidden during render cycle');
   }
 
-  BaseLayer.prototype.scale = function scale(_ref2) {
-    var width = _ref2.width,
-        height = _ref2.height;
+  this.width = Number(width) || BaseLayer.DEFAULT_WIDTH;
+  this.height = Number(height) || BaseLayer.DEFAULT_HEIGHT;
 
-    if (this.renderCycleStarted()) {
-      throwError('Layer#scale() during render cycle is forbidden');
+  this.canvas.width = this.width;
+  this.canvas.height = this.height;
+
+  this.applyStyles();
+
+  this.planRedraw();
+};
+
+BaseLayer.prototype.applyStyles = function applyStyles () {
+  if (this.shouldDrawComponents()) {
+    throwError('Layer#applyStyles() is forbidden during render cycle');
+  }
+
+  this.canvas.style.width = (this.width) + "px";
+  this.canvas.style.height = (this.height) + "px";
+  this.canvas.style.position = 'absolute';
+  this.canvas.style.top = 0;
+  this.canvas.style.left = 0;
+  this.canvas.style.right = 0;
+  this.canvas.style.bottom = 0;
+};
+
+BaseLayer.prototype.clear = function clear () {
+  if (this.shouldDrawComponents()) {
+    throwError('Layer#clear() is forbidden during render cycle');
+  }
+
+  this.clearStats();
+};
+
+BaseLayer.prototype.redraw = function redraw (time) {
+    var this$1 = this;
+
+  if (this.shouldDrawComponents()) {
+    throwError('Layer#redraw() is forbidden during render cycle');
+  }
+
+  this.planDrawComponents();
+  for (var i = 0; i < this.components.length; i++) {
+    var component = this$1.components[i];
+    if (component.shouldRedraw() || this$1.scheduler.should('redraw')) {
+      component.plot(this$1, time);
     }
+    component.draw(this$1, time);
+  }
+  this.completeDrawComponents();
+  this.completeRedraw();
+};
 
-    this.width = Number(width) || BaseLayer.DEFAULT_WIDTH;
-    this.height = Number(height) || BaseLayer.DEFAULT_HEIGHT;
+BaseLayer.prototype.forceRedraw = function forceRedraw () {
+  this.planRedraw();
+};
 
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
+BaseLayer.prototype.planRedraw = function planRedraw () {
+  this.scheduler.plan('redraw');
+};
 
-    this.applyStyles();
+BaseLayer.prototype.completeRedraw = function completeRedraw () {
+  this.scheduler.complete('redraw');
+};
 
-    this.forceRedraw();
-  };
+BaseLayer.prototype.shouldRedraw = function shouldRedraw () {
+    var this$1 = this;
 
-  BaseLayer.prototype.applyStyles = function applyStyles() {
-    if (this.renderCycleStarted()) {
-      throwError('Layer#applyStyles() during render cycle is forbidden');
+  for (var i = 0; i < this.components.length; i++) {
+    var component = this$1.components[i];
+    if (component.shouldRedraw()) {
+      return true
     }
+  }
+  return this.scheduler.should('redraw')
+};
 
-    this.canvas.style.width = this.width + 'px';
-    this.canvas.style.height = this.height + 'px';
-    this.canvas.style.position = 'absolute';
-    this.canvas.style.top = 0;
-    this.canvas.style.left = 0;
-    this.canvas.style.right = 0;
-    this.canvas.style.bottom = 0;
-  };
+BaseLayer.prototype.planDrawComponents = function planDrawComponents () {
+  this.scheduler.plan('drawComponents');
+};
 
-  BaseLayer.prototype.clear = function clear() {
-    if (this.renderCycleStarted()) {
-      throwError('Layer#clear() during render cycle is forbidden');
-    }
+BaseLayer.prototype.completeDrawComponents = function completeDrawComponents () {
+  this.scheduler.complete('drawComponents');
+};
 
-    this.clearStats();
-  };
+BaseLayer.prototype.shouldDrawComponents = function shouldDrawComponents () {
+  return this.scheduler.should('drawComponents')
+};
 
-  BaseLayer.prototype.redraw = function redraw(time) {
-    if (this.renderCycleStarted()) {
-      throwError('Layer#redraw() during render cycle is forbidden');
-    }
+BaseLayer.prototype.addComponent = function addComponent (component) {
+  if (this.shouldDrawComponents()) {
+    throwError('Layer#addComponent() is forbidden during render cycle');
+  }
 
-    this.startRenderCycle();
-    for (var i = 0; i < this.components.length; i++) {
-      var component = this.components[i];
-      if (component.shouldRedraw() || this._shouldRedraw) {
-        component.plot(this, time);
-      }
-      component.draw(this, time);
-    }
-    this.completeRenderCycle();
-    this._shouldRedraw = false;
-  };
+  var idx = this.components.indexOf(component);
+  if (idx !== -1) {
+    throwError(("Component " + (component.constructor.name) + " has already been added to layer"));
+  }
+  if (!Component.isComponent(component)) {
+    throwError(("Component " + (component.constructor.name) + " has not implemented Component interface"));
+  }
+  this.components.push(component);
+  this.planRedraw();
+  component.onadd(this);
+};
 
-  BaseLayer.prototype.forceRedraw = function forceRedraw() {
-    this._shouldRedraw = true;
-  };
+BaseLayer.prototype.addComponents = function addComponents (components) {
+  components.forEach(this.addComponent, this);
+};
 
-  BaseLayer.prototype.shouldRedraw = function shouldRedraw() {
-    for (var i = 0; i < this.components.length; i++) {
-      var component = this.components[i];
-      if (component.shouldRedraw()) {
-        return true;
-      }
-    }
-    return this._shouldRedraw;
-  };
+BaseLayer.prototype.removeComponent = function removeComponent (component) {
+  if (this.shouldDrawComponents()) {
+    throwError('Layer#removeComponent() is forbidden during render cycle');
+  }
 
-  BaseLayer.prototype.startRenderCycle = function startRenderCycle() {
-    this._renderCycleStarted = true;
-  };
+  var idx = this.components.indexOf(component);
+  if (idx !== -1) {
+    this.components.splice(idx, 1);
+    this.planRedraw();
+  }
+  component.onremove(this);
+};
 
-  BaseLayer.prototype.completeRenderCycle = function completeRenderCycle() {
-    this._renderCycleStarted = false;
-  };
+BaseLayer.prototype.removeComponents = function removeComponents (components) {
+  components.forEach(this.removeComponent, this);
+};
 
-  BaseLayer.prototype.renderCycleStarted = function renderCycleStarted() {
-    return this._renderCycleStarted;
-  };
+BaseLayer.prototype.clearComponents = function clearComponents () {
+  if (this.shouldDrawComponents()) {
+    throwError('Layer#clearComponents() is forbidden during render cycle');
+  }
 
-  BaseLayer.prototype.addComponent = function addComponent(component) {
-    if (this.renderCycleStarted()) {
-      throwError('Layer#addComponent() during render cycle is forbidden');
-    }
+  this.components = [];
+  this.planRedraw();
+};
 
-    var idx = this.components.indexOf(component);
-    if (idx !== -1) {
-      throwError('Component ' + component.constructor.name + ' has already been added to layer');
-    }
-    if (!Component.isComponent(component)) {
-      throwError('Component ' + component.constructor.name + ' has not implemented Component interface');
-    }
-    this.components.push(component);
-    this.forceRedraw();
-    component.onadd(this);
-  };
+BaseLayer.prototype.clearStats = function clearStats () {
+    var this$1 = this;
 
-  BaseLayer.prototype.addComponents = function addComponents(components) {
-    components.forEach(this.addComponent, this);
-  };
+  if (this.shouldDrawComponents()) {
+    throwError('Layer#clearStats() is forbidden during render cycle');
+  }
 
-  BaseLayer.prototype.removeComponent = function removeComponent(component) {
-    if (this.renderCycleStarted()) {
-      throwError('Layer#removeComponent() during render cycle is forbidden');
-    }
+  for (var methodName in this$1.stats) {
+    this$1.stats[methodName] = 0;
+  }
+};
 
-    var idx = this.components.indexOf(component);
-    if (idx !== -1) {
-      this.components.splice(idx, 1);
-      this.forceRedraw();
-    }
-    component.onremove(this);
-  };
+BaseLayer.prototype.collectStats = function collectStats (methodName) {
+  this.stats[methodName]++;
+};
 
-  BaseLayer.prototype.removeComponents = function removeComponents(components) {
-    components.forEach(this.removeComponent, this);
-  };
+BaseLayer.prototype.formatStats = function formatStats () {
+    var this$1 = this;
 
-  BaseLayer.prototype.clearComponents = function clearComponents() {
-    if (this.renderCycleStarted()) {
-      throwError('Layer#clearComponents() during render cycle is forbidden');
-    }
+  var result = [];
+  var maxStringLength = 20;
 
-    this.components = [];
-    this.forceRedraw();
-  };
+  for (var methodName in this$1.stats) {
+    result.push(methodName + leftPad_1$1(this$1.stats[methodName], maxStringLength - methodName.length));
+  }
 
-  BaseLayer.prototype.clearStats = function clearStats() {
-    if (this.renderCycleStarted()) {
-      throwError('Layer#clearStats() during render cycle is forbidden');
-    }
-
-    for (var methodName in this.stats) {
-      this.stats[methodName] = 0;
-    }
-  };
-
-  BaseLayer.prototype.collectStats = function collectStats(methodName) {
-    this.stats[methodName]++;
-  };
-
-  BaseLayer.prototype.formatStats = function formatStats() {
-    var result = [];
-    var maxStringLength = 20;
-
-    for (var methodName in this.stats) {
-      result.push(methodName + index(this.stats[methodName], maxStringLength - methodName.length));
-    }
-
-    return result;
-  };
-
-  return BaseLayer;
-}();
+  return result
+};
 
 BaseLayer.DEFAULT_WIDTH = 100;
 BaseLayer.DEFAULT_HEIGHT = 100;
 
-var Gradient = function () {
-  Gradient.isGradient = function isGradient(color) {
-    return color && color._isGradient;
-  };
-
-  function Gradient(_ref) {
-    var start = _ref.start,
-        end = _ref.end,
-        from = _ref.from,
-        to = _ref.to;
-    classCallCheck(this, Gradient);
-
-    this.start = start;
-    this.end = end;
-    this.from = from;
-    this.to = to;
-
-    this._isGradient = true;
-    this._gradient = null;
-  }
-
-  Gradient.prototype.createGradient = function createGradient(layer) {
-    layer.collectStats('createGradient');
-
-    this._gradient = layer.ctx.createLinearGradient(this.start.x, this.start.y, this.end.x, this.end.y);
-    this._gradient.addColorStop(0, this.from);
-    this._gradient.addColorStop(1, this.to);
-    return this._gradient;
-  };
-
-  Gradient.prototype.valueOf = function valueOf() {
-    return this._gradient;
-  };
-
-  return Gradient;
-}();
+var arrayEqual = function equal(arr1, arr2) {
+  var length = arr1.length;
+  if (length !== arr2.length) { return false }
+  for (var i = 0; i < length; i++)
+    { if (arr1[i] !== arr2[i])
+      { return false } }
+  return true
+};
 
 // -------------------------------------
 // CanvasLayer
@@ -406,47 +342,41 @@ var Gradient = function () {
 
 var PIXEL_RATIO = window.devicePixelRatio || 1;
 
-var CanvasLayer = function (_BaseLayer) {
-  inherits(CanvasLayer, _BaseLayer);
+var CanvasLayer = (function (BaseLayer$$1) {
+  function CanvasLayer (ref) {
+    var Vector = ref.Vector;
+    var stats = ref.stats;
+    var antialiasing = ref.antialiasing;
+    var width = ref.width;
+    var height = ref.height;
 
-  function CanvasLayer(_ref) {
-    var Vector = _ref.Vector,
-        stats = _ref.stats,
-        antialiasing = _ref.antialiasing,
-        width = _ref.width,
-        height = _ref.height;
-    classCallCheck(this, CanvasLayer);
+    BaseLayer$$1.call(this, { Vector: Vector, stats: stats, width: width, height: height });
 
-    var _this = possibleConstructorReturn(this, _BaseLayer.call(this, { Vector: Vector, stats: stats, width: width, height: height }));
+    this.antialiasing = Boolean(antialiasing);
+    this.ctx = this.canvas.getContext('2d');
 
-    _this.antialiasing = Boolean(antialiasing);
-    _this.ctx = _this.canvas.getContext('2d');
+    this.scale({ width: width, height: height });
 
-    _this.scale({ width: width, height: height });
+    this.imageLoader.onload = this.planRedraw.bind(this);
 
-    _this.imageLoader.onload = _this.forceRedraw.bind(_this);
-
-    _this.stats = {
-      createGradient: 0,
-      drawArc: 0,
-      drawCircle: 0,
-      drawImage: 0,
-      drawPolygon: 0,
-      drawPolyline: 0,
-      drawRect: 0,
-      drawText: 0,
-      measureText: 0,
+    this.stats = {
       stroke: 0,
       fill: 0
     };
-    return _this;
+
+    this.scheduler.complete('stroke');
+    this.scheduler.complete('fill');
   }
 
-  CanvasLayer.prototype.scale = function scale(_ref2) {
-    var width = _ref2.width,
-        height = _ref2.height;
+  if ( BaseLayer$$1 ) CanvasLayer.__proto__ = BaseLayer$$1;
+  CanvasLayer.prototype = Object.create( BaseLayer$$1 && BaseLayer$$1.prototype );
+  CanvasLayer.prototype.constructor = CanvasLayer;
 
-    _BaseLayer.prototype.scale.call(this, { width: width, height: height });
+  CanvasLayer.prototype.scale = function scale (ref) {
+    var width = ref.width;
+    var height = ref.height;
+
+    BaseLayer$$1.prototype.scale.call(this, { width: width, height: height });
 
     if (window.devicePixelRatio) {
       this.canvas.width = this.width * PIXEL_RATIO;
@@ -459,66 +389,99 @@ var CanvasLayer = function (_BaseLayer) {
     }
   };
 
-  CanvasLayer.prototype.clear = function clear() {
-    _BaseLayer.prototype.clear.call(this);
+  CanvasLayer.prototype.clear = function clear () {
+    BaseLayer$$1.prototype.clear.call(this);
     this.ctx.save();
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     this.ctx.restore();
   };
 
-  CanvasLayer.prototype.redraw = function redraw(time) {
-    _BaseLayer.prototype.redraw.call(this, time);
+  CanvasLayer.prototype.redraw = function redraw (time) {
+    BaseLayer$$1.prototype.redraw.call(this, time);
+    this.performDraw();
     if (this.logStats) {
       this.drawStats();
     }
   };
 
-  CanvasLayer.prototype.createGradient = function createGradient(_ref3) {
-    var start = _ref3.start,
-        end = _ref3.end,
-        from = _ref3.from,
-        to = _ref3.to;
+  CanvasLayer.prototype.stateChanged = function stateChanged (ref) {
+    var color = ref.color;
+    var fillColor = ref.fillColor;
+    var width = ref.width;
+    var lineDash = ref.lineDash;
+    var opacity = ref.opacity;
 
-    return new Gradient({ start: start, end: end, from: from, to: to });
+    return (
+      (color && color !== this.ctx.strokeStyle) ||
+      (fillColor && fillColor !== this.ctx.fillStyle) ||
+      (width && width !== this.ctx.lineWidth) ||
+      (opacity && opacity !== this.ctx.globalAlpha) ||
+      (lineDash && !arrayEqual(lineDash, this.ctx.getLineDash()))
+    )
   };
 
-  CanvasLayer.prototype.getColor = function getColor(color) {
-    return Gradient.isGradient(color) ? color.createGradient(this) : color;
-  };
-
-  CanvasLayer.prototype.drawArc = function drawArc(_ref4) {
-    var position = _ref4.position,
-        radius = _ref4.radius,
-        startAngle = _ref4.startAngle,
-        endAngle = _ref4.endAngle,
-        color = _ref4.color,
-        _ref4$width = _ref4.width,
-        width = _ref4$width === undefined ? 1 : _ref4$width;
-
-    this.collectStats('drawArc');
-
-    this.ctx.strokeStyle = this.getColor(color);
-    this.ctx.lineWidth = width;
-
+  CanvasLayer.prototype.performDraw = function performDraw () {
+    if (this.scheduler.should('stroke')) {
+      this.ctx.stroke();
+      this.scheduler.complete('stroke');
+      this.collectStats('stroke');
+    }
+    if (this.scheduler.should('fill')) {
+      this.ctx.fill();
+      this.scheduler.complete('fill');
+      this.collectStats('fill');
+    }
     this.ctx.beginPath();
+  };
+
+  CanvasLayer.prototype.createGradient = function createGradient (ref) {
+    var start = ref.start;
+    var end = ref.end;
+    var from = ref.from;
+    var to = ref.to;
+
+    var gradient = this.ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+    gradient.addColorStop(0, from);
+    gradient.addColorStop(1, to);
+    return gradient
+  };
+
+  CanvasLayer.prototype.drawArc = function drawArc (ref) {
+    var position = ref.position;
+    var radius = ref.radius;
+    var startAngle = ref.startAngle;
+    var endAngle = ref.endAngle;
+    var color = ref.color;
+    var width = ref.width; if ( width === void 0 ) width = 1;
+    var opacity = ref.opacity; if ( opacity === void 0 ) opacity = 1;
+    var lineDash = ref.lineDash; if ( lineDash === void 0 ) lineDash = [];
+
+    this.performDraw();
+
     this.ctx.arc(position.x, position.y, radius, startAngle, endAngle);
 
     if (color) {
-      this.collectStats('stroke');
-      this.ctx.stroke();
+      this.ctx.strokeStyle = color;
+      this.ctx.lineWidth = width;
+      this.ctx.globalAlpha = opacity;
+      this.ctx.setLineDash(lineDash);
+      this.scheduler.plan('stroke');
     }
   };
 
-  CanvasLayer.prototype.drawCircle = function drawCircle(_ref5) {
-    var position = _ref5.position,
-        radius = _ref5.radius,
-        color = _ref5.color,
-        fillColor = _ref5.fillColor,
-        _ref5$width = _ref5.width,
-        width = _ref5$width === undefined ? 1 : _ref5$width;
+  CanvasLayer.prototype.drawCircle = function drawCircle (ref) {
+    var position = ref.position;
+    var radius = ref.radius;
+    var color = ref.color;
+    var fillColor = ref.fillColor;
+    var width = ref.width; if ( width === void 0 ) width = 1;
+    var opacity = ref.opacity; if ( opacity === void 0 ) opacity = 1;
+    var lineDash = ref.lineDash; if ( lineDash === void 0 ) lineDash = [];
 
-    this.collectStats('drawCircle');
+    if (this.stateChanged({ color: color, fillColor: fillColor, width: width, opacity: opacity, lineDash: lineDash })) {
+      this.performDraw();
+    }
 
     this.drawArc({
       position: position,
@@ -526,27 +489,26 @@ var CanvasLayer = function (_BaseLayer) {
       startAngle: 0,
       endAngle: 2 * Math.PI,
       color: color,
-      width: width
+      width: width,
+      opacity: opacity,
+      lineDash: lineDash
     });
 
     if (fillColor) {
-      this.collectStats('fill');
-      this.ctx.fillStyle = this.getColor(fillColor);
-      this.ctx.fill();
+      this.ctx.fillStyle = fillColor;
+      this.ctx.globalAlpha = opacity;
+      this.scheduler.plan('fill');
     }
   };
 
-  CanvasLayer.prototype.drawImage = function drawImage(_ref6) {
-    var position = _ref6.position,
-        image = _ref6.image,
-        _ref6$width = _ref6.width,
-        width = _ref6$width === undefined ? image.width : _ref6$width,
-        _ref6$height = _ref6.height,
-        height = _ref6$height === undefined ? image.height : _ref6$height,
-        _ref6$opacity = _ref6.opacity,
-        opacity = _ref6$opacity === undefined ? 1 : _ref6$opacity;
+  CanvasLayer.prototype.drawImage = function drawImage (ref) {
+    var position = ref.position;
+    var image = ref.image;
+    var width = ref.width; if ( width === void 0 ) width = image.width;
+    var height = ref.height; if ( height === void 0 ) height = image.height;
+    var opacity = ref.opacity; if ( opacity === void 0 ) opacity = 1;
 
-    this.collectStats('drawImage');
+    this.performDraw();
 
     if (typeof image === 'string') {
       if (this.imageLoader.getStatus(image) === this.imageLoader.IMAGE_STATUS_LOADED) {
@@ -555,157 +517,160 @@ var CanvasLayer = function (_BaseLayer) {
         height = height || image.height;
       } else if (this.imageLoader.getStatus(image) !== this.imageLoader.IMAGE_STATUS_LOADING) {
         this.imageLoader.load(image);
-        return;
+        return
       } else {
-        return;
+        return
       }
     }
 
-    var defaultAlpha = this.ctx.globalAlpha;
     this.ctx.globalAlpha = opacity;
     if (this.antialiasing) {
       this.ctx.drawImage(image, position.x, position.y, width, height);
     } else {
       this.ctx.drawImage(image, position.x - 0.5, position.y - 0.5, width, height);
     }
-    this.ctx.globalAlpha = defaultAlpha;
   };
 
-  CanvasLayer.prototype.drawPolygon = function drawPolygon(_ref7) {
-    var points = _ref7.points,
-        color = _ref7.color,
-        fillColor = _ref7.fillColor,
-        _ref7$width = _ref7.width,
-        width = _ref7$width === undefined ? 1 : _ref7$width;
+  CanvasLayer.prototype.drawPolygon = function drawPolygon (ref) {
+    var points = ref.points;
+    var color = ref.color;
+    var fillColor = ref.fillColor;
+    var width = ref.width; if ( width === void 0 ) width = 1;
+    var opacity = ref.opacity; if ( opacity === void 0 ) opacity = 1;
+    var lineDash = ref.lineDash; if ( lineDash === void 0 ) lineDash = [];
 
-    this.collectStats('drawPolygon');
+    if (this.stateChanged({ color: color, fillColor: fillColor, width: width, opacity: opacity, lineDash: lineDash })) {
+      this.performDraw();
+    }
 
     this.drawPolyline({
       points: points.concat(points[0]),
       color: color,
-      width: width
+      width: width,
+      opacity: opacity,
+      lineDash: lineDash
     });
 
     if (fillColor) {
-      this.collectStats('fill');
-      this.ctx.fillStyle = this.getColor(fillColor);
-      this.ctx.fill();
+      this.ctx.fillStyle = fillColor;
+      this.ctx.globalAlpha = opacity;
+      this.scheduler.plan('fill');
     }
   };
 
-  CanvasLayer.prototype.drawPolyline = function drawPolyline(_ref8) {
-    var points = _ref8.points,
-        color = _ref8.color,
-        _ref8$lineDash = _ref8.lineDash,
-        lineDash = _ref8$lineDash === undefined ? [] : _ref8$lineDash,
-        _ref8$width = _ref8.width,
-        width = _ref8$width === undefined ? 1 : _ref8$width;
+  CanvasLayer.prototype.drawPolyline = function drawPolyline (ref) {
+    var this$1 = this;
+    var points = ref.points;
+    var color = ref.color;
+    var width = ref.width; if ( width === void 0 ) width = 1;
+    var opacity = ref.opacity; if ( opacity === void 0 ) opacity = 1;
+    var lineDash = ref.lineDash; if ( lineDash === void 0 ) lineDash = [];
 
-    this.collectStats('drawPolyline');
+    if (this.stateChanged({ color: color, width: width, opacity: opacity, lineDash: lineDash })) {
+      this.performDraw();
+    }
 
-    this.ctx.lineWidth = width;
-
-    this.ctx.beginPath();
     this.ctx.moveTo(points[0].x, points[0].y);
 
     for (var i = 1, point; i < points.length; i++) {
       point = points[i];
-      this.ctx.lineTo(point.x, point.y);
+      this$1.ctx.lineTo(point.x, point.y);
     }
-
-    this.ctx.setLineDash(lineDash);
 
     if (points[0].equals(points[points.length - 1])) {
       this.ctx.closePath();
     }
 
     if (color) {
-      this.collectStats('stroke');
-      this.ctx.strokeStyle = this.getColor(color);
-      this.ctx.stroke();
+      this.ctx.strokeStyle = color;
+      this.ctx.lineWidth = width;
+      this.ctx.globalAlpha = opacity;
+      this.ctx.setLineDash(lineDash);
+      this.scheduler.plan('stroke');
     }
   };
 
-  CanvasLayer.prototype.drawRect = function drawRect(_ref9) {
-    var position = _ref9.position,
-        width = _ref9.width,
-        height = _ref9.height,
-        color = _ref9.color,
-        fillColor = _ref9.fillColor,
-        _ref9$strokeWidth = _ref9.strokeWidth,
-        strokeWidth = _ref9$strokeWidth === undefined ? 1 : _ref9$strokeWidth;
+  CanvasLayer.prototype.drawRect = function drawRect (ref) {
+    var position = ref.position;
+    var width = ref.width;
+    var height = ref.height;
+    var color = ref.color;
+    var fillColor = ref.fillColor;
+    var strokeWidth = ref.strokeWidth; if ( strokeWidth === void 0 ) strokeWidth = 1;
+    var opacity = ref.opacity; if ( opacity === void 0 ) opacity = 1;
+    var lineDash = ref.lineDash; if ( lineDash === void 0 ) lineDash = [];
 
-    this.collectStats('drawRect');
+    if (this.stateChanged({ color: color, fillColor: fillColor, width: strokeWidth, opacity: opacity, lineDash: lineDash })) {
+      this.performDraw();
+    }
 
-    this.ctx.lineWidth = strokeWidth;
-
-    this.ctx.beginPath();
     if (this.antialiasing) {
       this.ctx.rect(position.x, position.y, width, height);
     } else {
       this.ctx.rect(position.x - 0.5, position.y - 0.5, width, height);
     }
-    this.ctx.closePath();
 
     if (color) {
-      this.collectStats('stroke');
-      this.ctx.strokeStyle = this.getColor(color);
-      this.ctx.stroke();
+      this.ctx.strokeStyle = color;
+      this.ctx.lineWidth = strokeWidth;
+      this.ctx.globalAlpha = opacity;
+      this.ctx.setLineDash(lineDash);
+      this.scheduler.plan('stroke');
     }
 
     if (fillColor) {
-      this.collectStats('fill');
-      this.ctx.fillStyle = this.getColor(fillColor);
-      this.ctx.fill();
+      this.ctx.globalAlpha = opacity;
+      this.ctx.fillStyle = fillColor;
+      this.scheduler.plan('fill');
     }
   };
 
-  CanvasLayer.prototype.drawText = function drawText(_ref10) {
-    var position = _ref10.position,
-        text = _ref10.text,
-        color = _ref10.color,
-        font = _ref10.font,
-        size = _ref10.size,
-        _ref10$align = _ref10.align,
-        align = _ref10$align === undefined ? 'center' : _ref10$align,
-        _ref10$baseline = _ref10.baseline,
-        baseline = _ref10$baseline === undefined ? 'middle' : _ref10$baseline;
+  CanvasLayer.prototype.drawText = function drawText (ref) {
+    var position = ref.position;
+    var text = ref.text;
+    var color = ref.color;
+    var font = ref.font;
+    var size = ref.size;
+    var align = ref.align; if ( align === void 0 ) align = 'center';
+    var baseline = ref.baseline; if ( baseline === void 0 ) baseline = 'middle';
+    var opacity = ref.opacity; if ( opacity === void 0 ) opacity = 1;
 
-    this.collectStats('drawText');
+    this.performDraw();
 
-    this.ctx.fillStyle = this.getColor(color);
-    this.ctx.font = size + 'px ' + font;
+    this.ctx.fillStyle = color;
+    this.ctx.font = size + "px " + font;
     this.ctx.textAlign = align;
     this.ctx.textBaseline = baseline;
+    this.ctx.globalAlpha = opacity;
 
     this.ctx.fillText(text, position.x, position.y);
   };
 
-  CanvasLayer.prototype.measureText = function measureText(_ref11) {
-    var text = _ref11.text,
-        font = _ref11.font,
-        size = _ref11.size;
-
-    this.collectStats('measureText');
+  CanvasLayer.prototype.measureText = function measureText (ref) {
+    var text = ref.text;
+    var font = ref.font;
+    var size = ref.size;
 
     var width;
     if (font && size) {
       var defaultFont = this.ctx.font;
-      this.ctx.font = size + 'px ' + font;
+      this.ctx.font = size + "px " + font;
       width = this.ctx.measureText(text).width;
       this.ctx.font = defaultFont;
     } else {
       width = this.ctx.measureText(text).width;
     }
-    return width;
+    return width
   };
 
-  CanvasLayer.prototype.drawStats = function drawStats() {
+  CanvasLayer.prototype.drawStats = function drawStats () {
+    var this$1 = this;
+
     var stats = this.formatStats();
 
     for (var i = stats.length; i--;) {
-      this.drawText({
-        position: new this.Vector(this.width - 10, this.height - 14 * (stats.length - i)),
+      this$1.drawText({
+        position: new this$1.Vector(this$1.width - 10, this$1.height - 14 * (stats.length - i)),
         text: stats[i],
         color: '#fff',
         font: 'Courier, monospace',
@@ -717,7 +682,25 @@ var CanvasLayer = function (_BaseLayer) {
   };
 
   return CanvasLayer;
-}(BaseLayer);
+}(BaseLayer));
+
+var LinearGradient = function LinearGradient (ref) {
+  var start = ref.start;
+  var end = ref.end;
+  var from = ref.from;
+  var to = ref.to;
+
+  this.start = start;
+  this.end = end;
+  this.from = from;
+  this.to = to;
+
+  this._isGradient = true;
+};
+
+LinearGradient.isGradient = function isGradient (color) {
+  return color && color._isGradient
+};
 
 var colors = {
   RED: '#f44336',
@@ -741,113 +724,109 @@ var colors = {
   BLUE_GREY: '#607d8b'
 };
 
-var Renderium = function () {
-  Renderium.spawn = function spawn(renderer) {
-    var idx = Renderium.instances.indexOf(renderer);
-    if (idx !== -1) {
-      throwError('Renderer has already been spawned');
-    }
-    Renderium.instances.push(renderer);
-  };
+var Renderium = function Renderium (ref) {
+  var el = ref.el;
 
-  Renderium.kill = function kill(renderer) {
-    var idx = Renderium.instances.indexOf(renderer);
-    if (idx !== -1) {
-      Renderium.instances.splice(idx, 1);
-    }
-  };
+  this.el = el;
+  this.applyStyles();
+  this.width = this.el.clientWidth;
+  this.height = this.el.clientHeight;
+  this.layers = [];
+};
 
-  Renderium.digest = function digest(time) {
-    for (var i = 0; i < Renderium.instances.length; i++) {
-      var renderer = Renderium.instances[i];
-      renderer.scale();
-      renderer.clear();
-      renderer.redraw(time);
-    }
-  };
-
-  function Renderium(_ref) {
-    var el = _ref.el;
-    classCallCheck(this, Renderium);
-
-    this.el = el;
-    this.applyStyles();
-    this.width = this.el.clientWidth;
-    this.height = this.el.clientHeight;
-    this.layers = [];
+Renderium.spawn = function spawn (renderer) {
+  var idx = Renderium.instances.indexOf(renderer);
+  if (idx !== -1) {
+    throwError('Renderer has already been spawned');
   }
+  Renderium.instances.push(renderer);
+};
 
-  Renderium.prototype.applyStyles = function applyStyles() {
-    this.el.style.position = 'relative';
-    this.el.style.width = '100%';
-    this.el.style.height = '100%';
-  };
+Renderium.kill = function kill (renderer) {
+  var idx = Renderium.instances.indexOf(renderer);
+  if (idx !== -1) {
+    Renderium.instances.splice(idx, 1);
+  }
+};
 
-  Renderium.prototype.addLayer = function addLayer(layer) {
-    var idx = this.layers.indexOf(layer);
-    if (idx !== -1) {
-      throwError('Layer has already been added to renderer');
-    }
-    this.layers.push(layer);
-    this.el.appendChild(layer.canvas);
-    layer.scale({ width: this.width, height: this.height });
-  };
+Renderium.digest = function digest (time) {
+  for (var i = 0; i < Renderium.instances.length; i++) {
+    var renderer = Renderium.instances[i];
+    renderer.scale();
+    renderer.clear();
+    renderer.redraw(time);
+  }
+};
 
-  Renderium.prototype.removeLayer = function removeLayer(layer) {
-    var idx = this.layers.indexOf(layer);
-    if (idx !== -1) {
-      this.layers.splice(idx, 1);
-      this.el.removeChild(layer.canvas);
-    }
-  };
+Renderium.prototype.applyStyles = function applyStyles () {
+  this.el.style.position = 'relative';
+  this.el.style.width = '100%';
+  this.el.style.height = '100%';
+};
 
-  Renderium.prototype.scale = function scale() {
-    var width = this.el.clientWidth;
-    var height = this.el.clientHeight;
+Renderium.prototype.addLayer = function addLayer (layer) {
+  var idx = this.layers.indexOf(layer);
+  if (idx !== -1) {
+    throwError('Layer has already been added to renderer');
+  }
+  this.layers.push(layer);
+  this.el.appendChild(layer.canvas);
+  layer.scale({ width: this.width, height: this.height });
+};
 
-    if (width !== this.width || height !== this.height) {
-      for (var i = 0; i < this.layers.length; i++) {
-        var layer = this.layers[i];
-        layer.scale({ width: width, height: height });
-      }
-      this.width = width;
-      this.height = height;
-    }
-  };
+Renderium.prototype.removeLayer = function removeLayer (layer) {
+  var idx = this.layers.indexOf(layer);
+  if (idx !== -1) {
+    this.layers.splice(idx, 1);
+    this.el.removeChild(layer.canvas);
+  }
+};
 
-  Renderium.prototype.clear = function clear() {
+Renderium.prototype.scale = function scale () {
+    var this$1 = this;
+
+  var width = this.el.clientWidth;
+  var height = this.el.clientHeight;
+
+  if (width !== this.width || height !== this.height) {
     for (var i = 0; i < this.layers.length; i++) {
-      var layer = this.layers[i];
-      if (layer.shouldRedraw()) {
-        layer.clear();
-      }
+      var layer = this$1.layers[i];
+      layer.scale({ width: width, height: height });
     }
-  };
+    this.width = width;
+    this.height = height;
+  }
+};
 
-  Renderium.prototype.redraw = function redraw(time) {
-    for (var i = 0; i < this.layers.length; i++) {
-      var layer = this.layers[i];
-      if (layer.shouldRedraw()) {
-        layer.redraw(time);
-      }
+Renderium.prototype.clear = function clear () {
+    var this$1 = this;
+
+  for (var i = 0; i < this.layers.length; i++) {
+    var layer = this$1.layers[i];
+    if (layer.shouldRedraw()) {
+      layer.clear();
     }
-  };
+  }
+};
 
-  return Renderium;
-}();
+Renderium.prototype.redraw = function redraw (time) {
+    var this$1 = this;
+
+  for (var i = 0; i < this.layers.length; i++) {
+    var layer = this$1.layers[i];
+    if (layer.shouldRedraw()) {
+      layer.redraw(time);
+    }
+  }
+};
 
 Renderium.instances = [];
 
 Renderium.BaseLayer = BaseLayer;
 Renderium.CanvasLayer = CanvasLayer;
+Renderium.LinearGradient = LinearGradient;
 Renderium.Component = Component;
 Renderium.colors = colors;
-Renderium.utils = utils;
-
-return Renderium;
-
-})));
-});
 
 function Vector$1 (x, y) {
   this.x = x || 0;
@@ -1219,17 +1198,17 @@ if (typeof Symbol !== 'undefined' && Symbol.iterator) {
   };
 }
 
-var commonjsGlobal$1 = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 
 
 
 
-function createCommonjsModule$1(fn, module) {
+function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var performanceNow$1 = createCommonjsModule$1(function (module) {
+var performanceNow$1 = createCommonjsModule(function (module) {
 // Generated by CoffeeScript 1.12.2
 /* istanbul ignore next */
 (function() {
@@ -1264,7 +1243,7 @@ var performanceNow$1 = createCommonjsModule$1(function (module) {
     loadTime = new Date().getTime();
   }
 
-}).call(commonjsGlobal$1);
+}).call(commonjsGlobal);
 
 
 });
@@ -1876,7 +1855,17 @@ var perfMonitor = Object.freeze({
 	CounterWidget: CounterWidget
 });
 
-var codemirror = createCommonjsModule(function (module, exports) {
+var commonjsGlobal$1 = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+
+
+
+
+function createCommonjsModule$1(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var codemirror = createCommonjsModule$1(function (module, exports) {
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
@@ -1888,7 +1877,7 @@ var codemirror = createCommonjsModule(function (module, exports) {
 
 (function (global, factory) {
 	module.exports = factory();
-}(commonjsGlobal, (function () { 'use strict';
+}(commonjsGlobal$1, (function () { 'use strict';
 
 // Kludges for bugs and behavior differences that can't be feature
 // detected are enabled based on userAgent etc sniffing.
@@ -11368,7 +11357,7 @@ return CodeMirror$1;
 })));
 });
 
-var javascript = createCommonjsModule(function (module, exports) {
+var javascript = createCommonjsModule$1(function (module, exports) {
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
@@ -12205,7 +12194,7 @@ CodeMirror.defineMIME("application/typescript", { name: "javascript", typescript
 });
 
 var lib = {
-  Renderium: renderium,
+  Renderium,
   Vector: Vector$1,
   Animation,
   perfMonitor,
